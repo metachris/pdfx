@@ -10,6 +10,7 @@ Features
 * See all urls in the original PDF (using the `-vv` flag)
 * **Download all PDFs referenced in the original PDF** (using the `-d` and `-o` flags)
 
+
 https://github.com/metachris/pdf-link-extractor
 
 Copyright (c) 2015, Chris Hager <chris@linuxuser.at>
@@ -116,12 +117,16 @@ class PdfInfo(object):
         self.output_directory = output_directory
         self.verbosity = verbosity
 
+        # Create output directory
         if output_directory and not os.path.exists(output_directory):
             os.makedirs(output_directory)
             print("Created output directory '%s'" % output_directory)
 
+        # Find out whether pdf is an URL or local file
         url = re.findall(urlmarker.URL_REGEX, pdf_uri)
         self.pdf_is_url = len(url)
+
+        # Grab content of referenced PDF
         if self.pdf_is_url:
             print("Reading url '%s'..." % pdf_uri)
             try:
@@ -145,31 +150,38 @@ class PdfInfo(object):
             if output_directory:
                 self.pdf_fn = os.path.basename(pdf_uri)
                 fn_download = os.path.join(output_directory, self.pdf_fn)
-                shutil.copyfile(pdf_uri, fn_download)
-                print("Saved pdf as '%s'" % fn_download)
+                try:
+                    shutil.copyfile(pdf_uri, fn_download)
+                    print("Saved pdf as '%s'" % fn_download)
+                except shutil.Error:
+                    # src and dest are the same
+                    pass
 
-        # Start getting infos from PDF
+        # Read content of PDF
         try:
             pdf = PyPDF2.PdfFileReader(self.pdf_handle)
         except Exception, e:
             exit_with_error(ERROR_PDF_INVALID, "Invalid PDF (%s)" % str(e))
 
+        # Output various document details
         print("Document infos:")
         infos = {}
         infos["Pages"] = pdf.getNumPages()
 
         for k,v in pdf.getDocumentInfo().iteritems():
             if isinstance(v, PyPDF2.generic.IndirectObject):
-                infos[k] = str(v.getObject())
+                infos[k.strip("/")] = str(v.getObject())
             else:
-                infos[k] = str(v)
+                infos[k.strip("/")] = str(v)
 
         for k,v in sorted(infos.iteritems()):
             if v:
-                print("-", k.strip("/"), "=", str(v).strip("/"))
+                print("-", k, "=", str(v).strip("/"))
 
+        # Extract text from PDF
         print()
         print("Analyzing text...")
+
         text = ""
         for page in pdf.pages:
             text = text + page.extractText()
@@ -178,21 +190,20 @@ class PdfInfo(object):
         if len(text.strip()) < 10:
             exit_with_error(ERROR_COULD_NOT_EXTRACT_PDF, "Error: Failed extracting text from PDF file.")
 
+        # Search for URLs
         self.urls = re.findall(urlmarker.URL_REGEX, text)
-        self.urls_pdf = [url for url in self.urls if url.endswith(".pdf")]
-
+        self.urls_pdf = [url for url in self.urls if url.lower().endswith(".pdf")]
+        self.word_count = text.count(" ") + text.count("\n")
+        print("- Words (approx.): %s" % self.word_count)
         print("- URLs: %s" % len(self.urls))
+
+        if verbosity > 0:
+            for url in set(self.urls) - set(self.urls_pdf):
+                print("  - %s" % url)
+
         print("- URLs to PDFs: %s" % len(self.urls_pdf))
-
-        if verbosity > 1:
-            print("- URLs:")
-            for url in self.urls:
-                print("  - %s" % url)
-
-        elif verbosity > 0:
-            print("- PDF URLs:")
-            for url in self.urls_pdf:
-                print("  - %s" % url)
+        for url in self.urls_pdf:
+            print("  - %s" % url)
 
         out = {
             "source": "url" if self.pdf_is_url else "file",
@@ -202,12 +213,11 @@ class PdfInfo(object):
         }
 
         self.pdf_summary = out
-        self.pdf_summary_json = json.dumps(out)
 
         if output_directory:
             fn_json = "%s.infos.json" % fn_download
             with open(fn_json, "w") as f:
-                f.write(self.pdf_summary_json)
+                f.write(json.dumps(out, indent=2))
             print("\nJSON summary saved as '%s'\n" % fn_json)
 
     def download_references(self):
@@ -223,19 +233,23 @@ class PdfInfo(object):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Get infos and links from PDFs.')
+    parser = argparse.ArgumentParser(
+            description='Get infos and links from a PDF, and optionally download all referenced PDFs.',
+            # formatter_class=argparse.RawDescriptionHelpFormatter,
+            # epilog="a\nb"
+    )
     parser.add_argument("pdf", help="Filename or URL of a PDF")
-    parser.add_argument("-d", "--download-pdfs",action='store_true', help="Download all referenced PDFs")
-    parser.add_argument("-o", "--output-directory", help="If specified, PDF and infos will be saved there. Required to download referenced pdfs.")
-    parser.add_argument('-v', '--verbose', action='count', default=0, help="'-v' will print pdf urls, '-vv' will print all urls")
+    # parser.add_argument("-d", "--download-pdfs", action='store_true', help="")
+    parser.add_argument("-d", "--download-pdfs", metavar="OUTPUT_DIRECTORY", help="Download all referenced PDFs into specified directory")
+    parser.add_argument('-v', '--verbose', action='count', default=0, help="Print all urls (instead of only PDF urls)")
     # parser.add_argument("-j", "--json",action='store_true', help="Output infos as json")
     args = parser.parse_args()
 
-    if args.download_pdfs and not args.output_directory:
-        print("Error: To download referenced pdfs, please specifiy a output directory!")
-        exit(ERROR_COMMAND_LINE_OPTIONS)
+    # if args.download_pdfs and not args.output_directory:
+    #     print("Error: To download referenced pdfs, please specifiy a output directory!")
+    #     exit(ERROR_COMMAND_LINE_OPTIONS)
 
-    pdfInfo = PdfInfo(args.pdf, args.output_directory, verbosity=args.verbose)
+    pdfInfo = PdfInfo(args.pdf, args.download_pdfs, verbosity=args.verbose)
     if args.download_pdfs:
         pdfInfo.download_references()
 

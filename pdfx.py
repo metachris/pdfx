@@ -62,7 +62,7 @@ class ThreadedDownloader(object):
     threads = []
 
     def __init__(self, urls, output_directory):
-        assert type(urls) in [list, tuple], "ThreadedDownloader urls need to be a list"
+        assert type(urls) in [list, tuple, set], "ThreadedDownloader urls need to be a list"
         assert len(urls), "ThreadedDownloader needs urls"
         assert output_directory, "ThreadedDownloader needs an output_directory"
         self.urls = urls

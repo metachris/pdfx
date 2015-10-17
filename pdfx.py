@@ -227,7 +227,8 @@ class PdfInfo(object):
         if self.urls_pdf:
             dir_target = os.path.join(self.output_directory, "%s-referenced-pdfs" % self.pdf_fn)
             print("Downloading %s referenced pdfs..." % len(self.urls_pdf))
-            tdl = ThreadedDownloader(self.urls_pdf, dir_target)
+            # Download urls as a set to avoid duplicates
+            tdl = ThreadedDownloader(set(self.urls_pdf), dir_target)
             tdl.start_downloads()
             tdl.wait_for_downloads()
 

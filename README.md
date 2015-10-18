@@ -1,12 +1,10 @@
-Extract all links from a local or remote PDF, and optionally download all referenced PDFs.
+Extract metadata and all links from a local or remote PDF, and optionally download all referenced PDFs.
 
 Features
 
-* Get general information about a PDF (metadata, number of pages, ...)
-* See all PDF urls in the original PDF (using the `-v` flag)
-* See all urls in the original PDF (using the `-vv` flag)
-* **Download all PDFs referenced in the original PDF** (using the `-d` and `-o` flags)
-
+* Get general information and PDF URLs from a given PDF (including metadata, number of pages, approximate word count, etc.)
+* **Download all PDFs referenced in the original PDF** (using the `-d` flag)
+* Works with local and online pdfs
 
 Getting Started
 ---------------
@@ -72,7 +70,7 @@ Lets take a look at this paper: [https://weakdh.org/imperfect-forward-secrecy.pd
       - http://www.spiegel.de/media/media-35520.pdf
       - http://www.spiegel.de/media/media-35551.pdf
 
-Download all referenced pdfs with **`-d`** (for download-pdfs) to the current directory (`./`):
+Download all referenced pdfs with **`-d`** (for download-pdfs) to the specified directory (eg. `./`):
 
     $ ./pdfx.py https://weakdh.org/imperfect-forward-secrecy.pdf -d ./
     Reading url 'https://weakdh.org/imperfect-forward-secrecy.pdf'...

@@ -25,6 +25,7 @@ from .exceptions import *
 
 logger = logging.getLogger(__name__)
 
+
 class PDFx(object):
     """
     Main class which extracts infos from PDF
@@ -34,12 +35,12 @@ class PDFx(object):
     * analyze_text -> get_urls()
     """
     # Available after init
-    pdf_uri = None      # Original URI
+    pdf_uri = None  # Original URI
     pdf_is_url = False  # False if file
-    pdf_fn = None       # Filename
-    pdf_stream = None   # ByteIO Stream
-    pdf = None          # PdfFileReader Instance
-    pdf_metadata = {}   # PDF Metadata
+    pdf_fn = None  # Filename
+    pdf_stream = None  # ByteIO Stream
+    pdf = None  # PdfFileReader Instance
+    pdf_metadata = {}  # PDF Metadata
     summary = {}
 
     # Available after analyze_text()
@@ -69,11 +70,13 @@ class PDFx(object):
                 content = urlopen(Request(pdf_uri)).read()
                 self.pdf_stream = BytesIO(content)
             except Exception as e:
-                raise DownloadError("Error downloading '%s' (%s)" % (pdf_uri, str(e)))
+                raise DownloadError("Error downloading '%s' (%s)" %
+                                    (pdf_uri, str(e)))
 
         else:
             if not os.path.isfile(pdf_uri):
-                raise FileNotFoundError("Invalid filename and not an url: '%s'" % pdf_uri)
+                raise FileNotFoundError("Invalid filename and not an url: '%s'"
+                                        % pdf_uri)
             self.pdf_fn = os.path.basename(pdf_uri)
             self.pdf_stream = open(pdf_uri, "rb")
 
@@ -87,7 +90,7 @@ class PDFx(object):
         self.pdf_metadata = {}
         self.pdf_metadata["Pages"] = self.pdf.getNumPages()
 
-        for k,v in self.pdf.getDocumentInfo().items():
+        for k, v in self.pdf.getDocumentInfo().items():
             if isinstance(v, PyPDF2.generic.IndirectObject):
                 self.pdf_metadata[k.strip("/")] = str(v.getObject())
             else:
@@ -112,11 +115,13 @@ class PDFx(object):
 
         # Process PDF
         if len(text.strip()) < 10:
-            raise PDFExtractionError("Error: Failed extracting text from PDF file.")
+            raise PDFExtractionError(
+                "Error: Failed extracting text from PDF file.")
 
         # Search for URLs
         self.urls = re.findall(urlmarker.URL_REGEX, text)
-        self.urls_pdf = [url for url in self.urls if url.lower().endswith(".pdf")]
+        self.urls_pdf = [url for url in self.urls
+                         if url.lower().endswith(".pdf")]
         self.summary["urls"] = self.urls
 
     def get_urls(self, pdf_only=False, sort=False):
@@ -147,8 +152,10 @@ class PDFx(object):
 
         # Download references
         if self.urls_pdf:
-            dir_referenced_pdfs = os.path.join(target_dir, "%s-referenced-pdfs" % self.pdf_fn)
-            logger.debug("Downloading %s referenced pdfs..." % len(self.urls_pdf))
+            dir_referenced_pdfs = os.path.join(target_dir, "%s-referenced-pdfs"
+                                               % self.pdf_fn)
+            logger.debug("Downloading %s referenced pdfs..." %
+                         len(self.urls_pdf))
 
             # Download urls as a set to avoid duplicates
             tdl = ThreadedDownloader(set(self.urls_pdf), dir_referenced_pdfs)

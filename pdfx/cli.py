@@ -13,10 +13,10 @@ import json
 import pdfx
 from pdfx.exceptions import *
 
+
 def exit_with_error(code, *objs):
     print("ERROR %s:" % code, *objs, file=sys.stderr)
     exit(code)
-
 
 # Error Status Codes
 ERROR_FILE_NOT_FOUND = 1
@@ -27,17 +27,33 @@ ERROR_COULD_NOT_EXTRACT_PDF = 5
 
 def main():
     parser = argparse.ArgumentParser(
-            description='Get infos and links from a PDF, and optionally download all referenced PDFs.\nSee http://www.metachris.com/pdfx for more information.',
-            formatter_class=argparse.RawDescriptionHelpFormatter,
-            epilog=""
-    )
+        description=
+        'Get infos and links from a PDF, and optionally download all referenced PDFs.\nSee http://www.metachris.com/pdfx for more information.',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="")
     parser.add_argument("pdf", help="Filename or URL of a PDF file")
-    parser.add_argument("-d", "--download-pdfs", metavar="OUTPUT_DIRECTORY", help="Download all referenced PDFs into specified directory")
-    parser.add_argument("-j", "--json", action='store_true', help="Output infos as json (instead of plain text)")
-    parser.add_argument("-v", "--verbose", action="count", default=0, help="Print all urls (instead of only PDF urls)")
-    parser.add_argument("--debug",action='store_true', help="Output debug infos")
+    parser.add_argument(
+        "-d",
+        "--download-pdfs",
+        metavar="OUTPUT_DIRECTORY",
+        help="Download all referenced PDFs into specified directory")
+    parser.add_argument("-j",
+                        "--json",
+                        action='store_true',
+                        help="Output infos as json (instead of plain text)")
+    parser.add_argument("-v",
+                        "--verbose",
+                        action="count",
+                        default=0,
+                        help="Print all urls (instead of only PDF urls)")
+    parser.add_argument("--debug",
+                        action='store_true',
+                        help="Output debug infos")
 
-    parser.add_argument("--version", action="version", version="%(prog)s (version {version})".format(version=pdfx.__version__))
+    parser.add_argument("--version",
+                        action="version",
+                        version="%(prog)s (version {version})".format(
+                            version=pdfx.__version__))
 
     args = parser.parse_args()
 
@@ -46,10 +62,8 @@ def main():
     #     exit(ERROR_COMMAND_LINE_OPTIONS)
 
     if args.debug:
-        logging.basicConfig(
-            level=logging.DEBUG,
-            format='%(levelname)s - %(module)s - %(message)s'
-        )
+        logging.basicConfig(level=logging.DEBUG,
+                            format='%(levelname)s - %(module)s - %(message)s')
 
     try:
         pdf = pdfx.open_pdf(args.pdf)
@@ -74,7 +88,7 @@ def main():
         exit_with_error(ERROR_COULD_NOT_EXTRACT_PDF, str(e))
 
     if not args.json:
-        urls = pdf.get_urls(pdf_only=args.verbose==0)
+        urls = pdf.get_urls(pdf_only=args.verbose == 0)
         print("%s URLs:" % len(urls))
         for url in urls:
             print("  - %s" % url)
@@ -90,5 +104,6 @@ def main():
     if args.json:
         print(json.dumps(pdf.summary, indent=2))
 
+
 if __name__ == "__main__":
-    main();
+    main()

@@ -33,10 +33,9 @@ import logging
 
 from .pdfx import PDFx
 
+
 # logging.basicConfig
 def open_pdf(pdf_uri):
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(levelname)s - %(module)s - %(message)s'
-    )
+    logging.basicConfig(level=logging.INFO,
+                        format='%(levelname)s - %(module)s - %(message)s')
     return PDFx(pdf_uri)

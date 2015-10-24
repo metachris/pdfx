@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Extract all links from a local or remote PDF, and optionally download all referenced PDFs.
+Command line tool to get metadata and URLs from a local or remote PDF,
+and optionally download all referenced PDFs.
 """
 from __future__ import absolute_import, division, print_function
 
@@ -27,8 +28,9 @@ ERROR_COULD_NOT_EXTRACT_PDF = 5
 
 def main():
     parser = argparse.ArgumentParser(
-        description=
-        'Get infos and links from a PDF, and optionally download all referenced PDFs.\nSee http://www.metachris.com/pdfx for more information.',
+        description="Get infos and links from a PDF, and optionally"
+                    "download all referenced PDFs.\nSee "
+                    "http://www.metachris.com/pdfx for more information.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="")
     parser.add_argument("pdf", help="Filename or URL of a PDF file")
@@ -56,10 +58,6 @@ def main():
                             version=pdfx.__version__))
 
     args = parser.parse_args()
-
-    # if args.download_pdfs and not args.output_directory:
-    #     print("Error: To download referenced pdfs, please specifiy a output directory!")
-    #     exit(ERROR_COMMAND_LINE_OPTIONS)
 
     if args.debug:
         logging.basicConfig(level=logging.DEBUG,

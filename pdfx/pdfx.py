@@ -10,14 +10,12 @@ import logging
 
 if sys.version_info < (3, 0):
     # Python 2
-    from cStringIO import StringIO
-    BytesIO = StringIO
-    from urllib2 import Request, urlopen, HTTPError
+    from cStringIO import StringIO as BytesIO
+    from urllib2 import Request, urlopen
 else:
     # Python 3
-    from io import StringIO
     from io import BytesIO
-    from urllib.request import Request, urlopen, HTTPError
+    from urllib.request import Request, urlopen
 
 from .libs import PyPDF2, urlmarker
 from .threadeddownload import ThreadedDownloader
@@ -47,7 +45,7 @@ class PDFx(object):
     urls = []  # All urls
     urls_pdf = []  # PDF urls
 
-    def __init__(self, pdf_uri):  #, output_directory=None, verbosity=0):
+    def __init__(self, pdf_uri):
         """
         Open PDF handle and parse PDF metadata
         - `pdf_uri` can bei either a filename or an url

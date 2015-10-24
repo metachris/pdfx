@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-Extract all links from a local or remote PDF, and optionally download all referenced PDFs.
+Extract all links from a local or remote PDF, and optionally download all
+referenced PDFs.
 
 Features
 
 * Get general information about a PDF (metadata, number of pages, ...)
 * See all PDF urls in the original PDF (using the `-v` flag)
 * See all urls in the original PDF (using the `-vv` flag)
-* **Download all PDFs referenced in the original PDF** (using the `-d` and `-o` flags)
+* **Download all PDFs referenced in the original PDF** (using the `-d` flag)
 
 Usage
 

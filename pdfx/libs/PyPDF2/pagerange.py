@@ -12,6 +12,7 @@ from .utils import isString
 
 _INT_RE = r"(0|-?[1-9]\d*)"  # A decimal int, don't allow "-0".
 PAGE_RANGE_RE = "^({int}|({int}?(:{int}?(:{int}?)?)))$".format(int=_INT_RE)
+
 # groups:         12     34     5 6     7 8
 
 
@@ -82,7 +83,8 @@ class PageRange(object):
 
     # Just formatting this when there is __doc__ for __init__
     if __init__.__doc__:
-        __init__.__doc__ = __init__.__doc__.format(page_range_help=PAGE_RANGE_HELP)
+        __init__.__doc__ = __init__.__doc__.format(
+            page_range_help=PAGE_RANGE_HELP)
 
     @staticmethod
     def valid(input):
@@ -100,7 +102,7 @@ class PageRange(object):
         """ A string like "1:2:3". """
         s = self._slice
         if s.step == None:
-            if s.start != None  and  s.stop == s.start + 1:
+            if s.start != None and s.stop == s.start + 1:
                 return str(s.start)
 
             indices = s.start, s.stop
@@ -140,12 +142,12 @@ def parse_filename_page_ranges(args):
                 raise ValueError("The first argument must be a filename, " \
                                  "not a page range.")
 
-            pairs.append( (pdf_filename, PageRange(arg)) )
+            pairs.append((pdf_filename, PageRange(arg)))
             did_page_range = True
         else:
             # New filename or end of list--do all of the previous file?
             if pdf_filename and not did_page_range:
-                pairs.append( (pdf_filename, PAGE_RANGE_ALL) )
+                pairs.append((pdf_filename, PAGE_RANGE_ALL))
 
             pdf_filename = arg
             did_page_range = False

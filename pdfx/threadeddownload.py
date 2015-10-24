@@ -4,15 +4,14 @@ from __future__ import absolute_import, division, print_function
 import os
 import sys
 import logging
-from time import sleep
 from threading import Thread
 
 if sys.version_info < (3, 0):
     # Python 2
-    from urllib2 import Request, urlopen, HTTPError
+    from urllib2 import Request, urlopen
 else:
     # Python 3
-    from urllib.request import Request, urlopen, HTTPError
+    from urllib.request import Request, urlopen
 
 logger = logging.getLogger(__name__)
 
@@ -24,8 +23,10 @@ class ThreadedDownloader(object):
 
     >>> urls = ["http://test.com/a.pdf", "http://test.com/b.pdf"]
     >>> tdl = ThreadedDownloader(urls, "download_dir")
-    >>> tdl.start_downloads()     # Downloads are started as threads in the background
-    >>> tdl.wait_for_downloads()  # Waits until all download threads are finished (blocking)
+    >>> tdl.start_downloads()     # Downloads are started as threads
+                                    in the background
+    >>> tdl.wait_for_downloads()  # Waits until all download threads
+                                    are finished (blocking)
     """
     urls = []
     output_directory = None

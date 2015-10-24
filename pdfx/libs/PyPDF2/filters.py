@@ -26,8 +26,6 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-
-
 """
 Implementation of stream filters for PDF.
 """
@@ -36,7 +34,7 @@ __author_email__ = "biziqe@mathieu.fenniak.net"
 
 from .utils import PdfReadError, ord_, chr_
 from sys import version_info
-if version_info < ( 3, 0 ):
+if version_info < (3, 0):
     from cStringIO import StringIO
 else:
     from io import StringIO
@@ -87,7 +85,8 @@ except ImportError:
         ms = IO.MemoryStream()
         ms.Write(bytes, 0, bytes.Length)
         ms.Position = 0  # fseek 0
-        gz = IO.Compression.DeflateStream(ms, IO.Compression.CompressionMode.Decompress)
+        gz = IO.Compression.DeflateStream(
+            ms, IO.Compression.CompressionMode.Decompress)
         bytes = _read_bytes(gz)
         retval = _bytearr_to_string(bytes)
         gz.Close()
@@ -96,10 +95,11 @@ except ImportError:
     def compress(data):
         bytes = _string_to_bytearr(data)
         ms = IO.MemoryStream()
-        gz = IO.Compression.DeflateStream(ms, IO.Compression.CompressionMode.Compress, True)
+        gz = IO.Compression.DeflateStream(
+            ms, IO.Compression.CompressionMode.Compress, True)
         gz.Write(bytes, 0, bytes.Length)
         gz.Close()
-        ms.Position = 0 # fseek 0
+        ms.Position = 0  # fseek 0
         bytes = ms.ToArray()
         retval = _bytearr_to_string(bytes)
         ms.Close()
@@ -114,7 +114,7 @@ class FlateDecode(object):
             try:
                 predictor = decodeParms.get("/Predictor", 1)
             except AttributeError:
-                pass    # usually an array with a null object was read
+                pass  # usually an array with a null object was read
 
         # predictor 1 == no predictor
         if predictor != 1:
@@ -125,32 +125,38 @@ class FlateDecode(object):
                 # PNG prediction can vary from row to row
                 rowlength = columns + 1
                 assert len(data) % rowlength == 0
-                prev_rowdata = (0,) * rowlength
+                prev_rowdata = (0, ) * rowlength
                 for row in range(len(data) // rowlength):
-                    rowdata = [ord_(x) for x in data[(row*rowlength):((row+1)*rowlength)]]
+                    rowdata = [ord_(x)
+                               for x in data[(row * rowlength):((row + 1) *
+                                                                rowlength)]]
                     filterByte = rowdata[0]
                     if filterByte == 0:
                         pass
                     elif filterByte == 1:
                         for i in range(2, rowlength):
-                            rowdata[i] = (rowdata[i] + rowdata[i-1]) % 256
+                            rowdata[i] = (rowdata[i] + rowdata[i - 1]) % 256
                     elif filterByte == 2:
                         for i in range(1, rowlength):
                             rowdata[i] = (rowdata[i] + prev_rowdata[i]) % 256
                     else:
                         # unsupported PNG filter
-                        raise PdfReadError("Unsupported PNG filter %r" % filterByte)
+                        raise PdfReadError("Unsupported PNG filter %r" %
+                                           filterByte)
                     prev_rowdata = rowdata
                     output.write(''.join([chr(x) for x in rowdata[1:]]))
                 data = output.getvalue()
             else:
                 # unsupported predictor
-                raise PdfReadError("Unsupported flatedecode predictor %r" % predictor)
+                raise PdfReadError("Unsupported flatedecode predictor %r" %
+                                   predictor)
         return data
+
     decode = staticmethod(decode)
 
     def encode(data):
         return compress(data)
+
     encode = staticmethod(encode)
 
 
@@ -173,6 +179,7 @@ class ASCIIHexDecode(object):
             x += 1
         assert char == ""
         return retval
+
     decode = staticmethod(decode)
 
 
@@ -180,40 +187,41 @@ class LZWDecode(object):
     """Taken from:
     http://www.java2s.com/Open-Source/Java-Document/PDF/PDF-Renderer/com/sun/pdfview/decode/LZWDecode.java.htm
     """
+
     class decoder(object):
         def __init__(self, data):
-            self.STOP=257
-            self.CLEARDICT=256
-            self.data=data
-            self.bytepos=0
-            self.bitpos=0
-            self.dict=[""]*4096
+            self.STOP = 257
+            self.CLEARDICT = 256
+            self.data = data
+            self.bytepos = 0
+            self.bitpos = 0
+            self.dict = [""] * 4096
             for i in range(256):
-                self.dict[i]=chr(i)
+                self.dict[i] = chr(i)
             self.resetDict()
 
         def resetDict(self):
-            self.dictlen=258
-            self.bitspercode=9
+            self.dictlen = 258
+            self.bitspercode = 9
 
         def nextCode(self):
-            fillbits=self.bitspercode
-            value=0
-            while fillbits>0 :
+            fillbits = self.bitspercode
+            value = 0
+            while fillbits > 0:
                 if self.bytepos >= len(self.data):
                     return -1
-                nextbits=ord(self.data[self.bytepos])
-                bitsfromhere=8-self.bitpos
-                if bitsfromhere>fillbits:
-                    bitsfromhere=fillbits
-                value |= (((nextbits >> (8-self.bitpos-bitsfromhere)) &
-                           (0xff >> (8-bitsfromhere))) <<
-                          (fillbits-bitsfromhere))
+                nextbits = ord(self.data[self.bytepos])
+                bitsfromhere = 8 - self.bitpos
+                if bitsfromhere > fillbits:
+                    bitsfromhere = fillbits
+                value |= (((nextbits >> (8 - self.bitpos - bitsfromhere))
+                           & (0xff >> (8 - bitsfromhere)))
+                          << (fillbits - bitsfromhere))
                 fillbits -= bitsfromhere
                 self.bitpos += bitsfromhere
-                if self.bitpos >=8:
-                    self.bitpos=0
-                    self.bytepos = self.bytepos+1
+                if self.bitpos >= 8:
+                    self.bitpos = 0
+                    self.bytepos = self.bytepos + 1
             return value
 
         def decode(self):
@@ -221,43 +229,43 @@ class LZWDecode(object):
             http://www.rasip.fer.hr/research/compress/algorithms/fund/lz/lzw.html
             and the PDFReference
             """
-            cW = self.CLEARDICT;
-            baos=""
+            cW = self.CLEARDICT
+            baos = ""
             while True:
-                pW = cW;
-                cW = self.nextCode();
+                pW = cW
+                cW = self.nextCode()
                 if cW == -1:
                     raise PdfReadError("Missed the stop code in LZWDecode!")
                 if cW == self.STOP:
-                    break;
+                    break
                 elif cW == self.CLEARDICT:
-                    self.resetDict();
+                    self.resetDict()
                 elif pW == self.CLEARDICT:
-                    baos+=self.dict[cW]
+                    baos += self.dict[cW]
                 else:
                     if cW < self.dictlen:
                         baos += self.dict[cW]
-                        p=self.dict[pW]+self.dict[cW][0]
-                        self.dict[self.dictlen]=p
-                        self.dictlen+=1
+                        p = self.dict[pW] + self.dict[cW][0]
+                        self.dict[self.dictlen] = p
+                        self.dictlen += 1
                     else:
-                        p=self.dict[pW]+self.dict[pW][0]
-                        baos+=p
-                        self.dict[self.dictlen] = p;
-                        self.dictlen+=1
+                        p = self.dict[pW] + self.dict[pW][0]
+                        baos += p
+                        self.dict[self.dictlen] = p
+                        self.dictlen += 1
                     if (self.dictlen >= (1 << self.bitspercode) - 1 and
-                        self.bitspercode < 12):
-                        self.bitspercode+=1
+                            self.bitspercode < 12):
+                        self.bitspercode += 1
             return baos
 
     @staticmethod
-    def decode(data,decodeParams=None):
+    def decode(data, decodeParams=None):
         return LZWDecode.decoder(data).decode()
 
 
 class ASCII85Decode(object):
     def decode(data, decodeParms=None):
-        if version_info < ( 3, 0 ):
+        if version_info < (3, 0):
             retval = ""
             group = []
             x = 0
@@ -266,7 +274,7 @@ class ASCII85Decode(object):
             data = [y for y in data if not (y in ' \n\r\t')]
             while not hitEod:
                 c = data[x]
-                if len(retval) == 0 and c == "<" and data[x+1] == "~":
+                if len(retval) == 0 and c == "<" and data[x + 1] == "~":
                     x += 2
                     continue
                 #elif c.isspace():
@@ -277,19 +285,19 @@ class ASCII85Decode(object):
                     retval += '\x00\x00\x00\x00'
                     x += 1
                     continue
-                elif c == "~" and data[x+1] == ">":
+                elif c == "~" and data[x + 1] == ">":
                     if len(group) != 0:
                         # cannot have a final group of just 1 char
                         assert len(group) > 1
                         cnt = len(group) - 1
-                        group += [ 85, 85, 85 ]
+                        group += [85, 85, 85]
                         hitEod = cnt
                     else:
                         break
                 else:
                     c = ord(c) - 33
                     assert c >= 0 and c < 85
-                    group += [ c ]
+                    group += [c]
                 if len(group) >= 5:
                     b = group[0] * (85**4) + \
                         group[1] * (85**3) + \
@@ -303,7 +311,7 @@ class ASCII85Decode(object):
                     c1 = chr(b >> 24)
                     retval += (c1 + c2 + c3 + c4)
                     if hitEod:
-                        retval = retval[:-4+hitEod]
+                        retval = retval[:-4 + hitEod]
                     group = []
                 x += 1
             return retval
@@ -315,20 +323,21 @@ class ASCII85Decode(object):
             for c in data:
                 if ord('!') <= c and c <= ord('u'):
                     n += 1
-                    b = b*85+(c-33)
+                    b = b * 85 + (c - 33)
                     if n == 5:
-                        out += struct.pack(b'>L',b)
+                        out += struct.pack(b'>L', b)
                         n = b = 0
                 elif c == ord('z'):
                     assert n == 0
                     out += b'\0\0\0\0'
                 elif c == ord('~'):
                     if n:
-                        for _ in range(5-n):
-                            b = b*85+84
-                        out += struct.pack(b'>L',b)[:n-1]
+                        for _ in range(5 - n):
+                            b = b * 85 + 84
+                        out += struct.pack(b'>L', b)[:n - 1]
                     break
             return bytes(out)
+
     decode = staticmethod(decode)
 
 
@@ -337,7 +346,7 @@ def decodeStreamData(stream):
     filters = stream.get("/Filter", ())
     if len(filters) and not isinstance(filters[0], NameObject):
         # we have a single filter instance
-        filters = (filters,)
+        filters = (filters, )
     data = stream._data
     # If there is not data to decode we should not try to decode the data.
     if data:
@@ -355,7 +364,8 @@ def decodeStreamData(stream):
                 if "/Name" not in decodeParams and "/Type" not in decodeParams:
                     pass
                 else:
-                    raise NotImplementedError("/Crypt filter with /Name or /Type not supported yet")
+                    raise NotImplementedError(
+                        "/Crypt filter with /Name or /Type not supported yet")
             else:
                 # unsupported filter
                 raise NotImplementedError("unsupported filter %s" % filterType)

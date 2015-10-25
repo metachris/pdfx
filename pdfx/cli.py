@@ -12,7 +12,6 @@ import argparse
 import json
 
 import pdfx
-from pdfx.exceptions import *
 
 
 def exit_with_error(code, *objs):
@@ -29,8 +28,8 @@ ERROR_COULD_NOT_EXTRACT_PDF = 5
 def main():
     parser = argparse.ArgumentParser(
         description="Get infos and links from a PDF, and optionally"
-                    "download all referenced PDFs.\nSee "
-                    "http://www.metachris.com/pdfx for more information.",
+        "download all referenced PDFs.\nSee "
+        "http://www.metachris.com/pdfx for more information.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="")
     parser.add_argument("pdf", help="Filename or URL of a PDF file")
@@ -65,11 +64,11 @@ def main():
 
     try:
         pdf = pdfx.PDFx(args.pdf)
-    except FileNotFoundError as e:
+    except pdfx.exceptions.FileNotFoundError as e:
         exit_with_error(ERROR_FILE_NOT_FOUND, str(e))
-    except DownloadError as e:
+    except pdfx.exceptions.DownloadError as e:
         exit_with_error(ERROR_DOWNLOAD, str(e))
-    except PDFInvalidError as e:
+    except pdfx.exceptions.PDFInvalidError as e:
         exit_with_error(ERROR_PDF_INVALID, str(e))
 
     # Print Metadata
@@ -82,7 +81,7 @@ def main():
     # Analyze PDF Text
     try:
         pdf.analyze_text()
-    except PDFExtractionError as e:
+    except pdfx.exceptions.PDFExtractionError as e:
         exit_with_error(ERROR_COULD_NOT_EXTRACT_PDF, str(e))
 
     if not args.json:
@@ -98,7 +97,8 @@ def main():
     try:
         if args.download_pdfs:
             if not args.json:
-                print("\nDownloading %s pdfs to '%s'..." % (len(pdf.urls_pdf, args.download_pdfs)))
+                print("\nDownloading %s pdfs to '%s'..." %
+                      (len(pdf.urls_pdf, args.download_pdfs)))
             pdf.download_pdfs(args.download_pdfs)
             print("All done!")
     except Exception as e:

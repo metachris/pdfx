@@ -109,6 +109,15 @@ Download all referenced pdfs with **``-d``** (for ``download-pdfs``) to the spec
     Downloading 17 pdfs to './'...
     All done!
 
+Usage as Python library::
+
+    >>> import pdfx
+    >>> pdf = pdfx.PDFx("filename-or-url.pdf")
+    >>> print(pdf.get_metadata())
+    >>> pdf.analyze_text()
+    >>> print(pdf.get_urls())
+    >>> pdf.download_pdfs("target-directory")
+
 Feedback, ideas and pull requests are welcome!
 
 

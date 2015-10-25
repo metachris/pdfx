@@ -1,43 +1,49 @@
 Extract metadata and all links from a local or remote PDF, and optionally download all referenced PDFs.
 
-Features
+**Features**
 
-* Get general information and PDF URLs from a given PDF (including metadata, number of pages, approximate word count, etc.)
-* **Download all PDFs referenced in the original PDF** (using the `-d` flag)
+* Extract metadata and PDF URLs from a given PDF
+* **Download all PDFs referenced in the original PDF**
 * Works with local and online pdfs
+* Use as command-line tool or Python package
+* Compatible with Python 2 and 3
 
 Getting Started
 ---------------
 
-Grab a copy of the code and run it:
+Grab a copy of the code and run it::
 
-    git clone https://github.com/metachris/pdfx.git
-    cd pdfx
-    ./pdfx.py <pdf_filename_or_url>
+    $ pip install pdfx
+    ...
+    $ pdfx <pdf-file-or-url>
 
-Run `./pdfx.py -h` to see the help output:
+Run ``pdfx -h`` to see the help output::
 
-    $ ./pdfx.py -h
-    usage: pdfx.py [-h] [-d OUTPUT_DIRECTORY] [-v] pdf
+    $ pdfx -h
+    usage: pdfx [-h] [-d OUTPUT_DIRECTORY] [-j] [-v] [--debug] [--version] pdf
 
-    Get infos and links from a PDF, and optionally download all referenced PDFs.
+    Get infos and links from a PDF, and optionallydownload all referenced PDFs.
+    See http://www.metachris.com/pdfx for more information.
 
     positional arguments:
-      pdf                   Filename or URL of a PDF
+      pdf                   Filename or URL of a PDF file
 
     optional arguments:
       -h, --help            show this help message and exit
       -d OUTPUT_DIRECTORY, --download-pdfs OUTPUT_DIRECTORY
                             Download all referenced PDFs into specified directory
+      -j, --json            Output infos as json (instead of plain text)
       -v, --verbose         Print all urls (instead of only PDF urls)
+      --debug               Output debug infos
+      --version             show program's version number and exit
+
 
 Examples
 --------
 
-Lets take a look at this paper: [https://weakdh.org/imperfect-forward-secrecy.pdf](https://weakdh.org/imperfect-forward-secrecy.pdf)
+Lets take a look at this paper: https://weakdh.org/imperfect-forward-secrecy.pdf::
 
-    $ ./pdfx.py https://weakdh.org/imperfect-forward-secrecy.pdf
-    Reading url 'https://weakdh.org/imperfect-forward-secrecy.pdf'...
+    $ pdfx https://weakdh.org/imperfect-forward-secrecy.pdf
     Document infos:
     - CreationDate = D:20150821110623-04'00'
     - Creator = LaTeX with hyperref package
@@ -48,33 +54,29 @@ Lets take a look at this paper: [https://weakdh.org/imperfect-forward-secrecy.pd
     - Title = Imperfect Forward Secrecy: How Diffie-Hellman Fails in Practice
     - Trapped = False
 
-    Analyzing text...
-    - Words (approx.): 1796
-    - URLs: 49
-    - URLs to PDFs: 17
-      - http://cr.yp.to/factorization/smoothparts-20040510.pdf
-      - http://www.spiegel.de/media/media-35671.pdf
-      - http://www.spiegel.de/media/media-35529.pdf
-      - http://cryptome.org/2013/08/spy-budget-fy13.pdf
-      - http://www.spiegel.de/media/media-35514.pdf
-      - http://www.spiegel.de/media/media-35509.pdf
-      - http://www.spiegel.de/media/media-35515.pdf
-      - http://www.spiegel.de/media/media-35533.pdf
-      - http://www.spiegel.de/media/media-35519.pdf
-      - http://www.spiegel.de/media/media-35522.pdf
-      - http://www.spiegel.de/media/media-35513.pdf
-      - http://www.spiegel.de/media/media-35528.pdf
-      - http://www.spiegel.de/media/media-35526.pdf
-      - http://www.spiegel.de/media/media-35517.pdf
-      - http://www.spiegel.de/media/media-35527.pdf
-      - http://www.spiegel.de/media/media-35520.pdf
-      - http://www.spiegel.de/media/media-35551.pdf
+    17 PDF URLs:
+    - http://cr.yp.to/factorization/smoothparts-20040510.pdf
+    - http://www.spiegel.de/media/media-35671.pdf
+    - http://www.spiegel.de/media/media-35529.pdf
+    - http://cryptome.org/2013/08/spy-budget-fy13.pdf
+    - http://www.spiegel.de/media/media-35514.pdf
+    - http://www.spiegel.de/media/media-35509.pdf
+    - http://www.spiegel.de/media/media-35515.pdf
+    - http://www.spiegel.de/media/media-35533.pdf
+    - http://www.spiegel.de/media/media-35519.pdf
+    - http://www.spiegel.de/media/media-35522.pdf
+    - http://www.spiegel.de/media/media-35513.pdf
+    - http://www.spiegel.de/media/media-35528.pdf
+    - http://www.spiegel.de/media/media-35526.pdf
+    - http://www.spiegel.de/media/media-35517.pdf
+    - http://www.spiegel.de/media/media-35527.pdf
+    - http://www.spiegel.de/media/media-35520.pdf
+    - http://www.spiegel.de/media/media-35551.pdf
 
-Download all referenced pdfs with **`-d`** (for download-pdfs) to the specified directory (eg. `./`):
 
-    $ ./pdfx.py https://weakdh.org/imperfect-forward-secrecy.pdf -d ./
-    Reading url 'https://weakdh.org/imperfect-forward-secrecy.pdf'...
-    Saved pdf as './imperfect-forward-secrecy.pdf'
+Download all referenced pdfs with **``-d``** (for ``download-pdfs``) to the specified directory (eg. ``./``)::
+
+    $ pdfx https://weakdh.org/imperfect-forward-secrecy.pdf -d ./
     Document infos:
     - CreationDate = D:20150821110623-04'00'
     - Creator = LaTeX with hyperref package
@@ -85,49 +87,27 @@ Download all referenced pdfs with **`-d`** (for download-pdfs) to the specified 
     - Title = Imperfect Forward Secrecy: How Diffie-Hellman Fails in Practice
     - Trapped = False
 
-    Analyzing text...
-    - Words (approx.): 1796
-    - URLs: 49
-    - URLs to PDFs: 17
-      - http://cr.yp.to/factorization/smoothparts-20040510.pdf
-      - http://www.spiegel.de/media/media-35671.pdf
-      - http://www.spiegel.de/media/media-35529.pdf
-      - http://cryptome.org/2013/08/spy-budget-fy13.pdf
-      - http://www.spiegel.de/media/media-35514.pdf
-      - http://www.spiegel.de/media/media-35509.pdf
-      - http://www.spiegel.de/media/media-35515.pdf
-      - http://www.spiegel.de/media/media-35533.pdf
-      - http://www.spiegel.de/media/media-35519.pdf
-      - http://www.spiegel.de/media/media-35522.pdf
-      - http://www.spiegel.de/media/media-35513.pdf
-      - http://www.spiegel.de/media/media-35528.pdf
-      - http://www.spiegel.de/media/media-35526.pdf
-      - http://www.spiegel.de/media/media-35517.pdf
-      - http://www.spiegel.de/media/media-35527.pdf
-      - http://www.spiegel.de/media/media-35520.pdf
-      - http://www.spiegel.de/media/media-35551.pdf
+    17 PDF URLs:
+    - http://cr.yp.to/factorization/smoothparts-20040510.pdf
+    - http://www.spiegel.de/media/media-35671.pdf
+    - http://www.spiegel.de/media/media-35529.pdf
+    - http://cryptome.org/2013/08/spy-budget-fy13.pdf
+    - http://www.spiegel.de/media/media-35514.pdf
+    - http://www.spiegel.de/media/media-35509.pdf
+    - http://www.spiegel.de/media/media-35515.pdf
+    - http://www.spiegel.de/media/media-35533.pdf
+    - http://www.spiegel.de/media/media-35519.pdf
+    - http://www.spiegel.de/media/media-35522.pdf
+    - http://www.spiegel.de/media/media-35513.pdf
+    - http://www.spiegel.de/media/media-35528.pdf
+    - http://www.spiegel.de/media/media-35526.pdf
+    - http://www.spiegel.de/media/media-35517.pdf
+    - http://www.spiegel.de/media/media-35527.pdf
+    - http://www.spiegel.de/media/media-35520.pdf
+    - http://www.spiegel.de/media/media-35551.pdf
 
-    JSON summary saved as './imperfect-forward-secrecy.pdf.infos.json'
-
-    Downloading 17 referenced pdfs...
-    Created directory './imperfect-forward-secrecy.pdf-referenced-pdfs'
-    Downloaded 'http://cr.yp.to/factorization/smoothparts-20040510.pdf' to './imperfect-forward-secrecy.pdf-referenced-pdfs/smoothparts-20040510.pdf'...
-    Downloaded 'http://www.spiegel.de/media/media-35514.pdf' to './imperfect-forward-secrecy.pdf-referenced-pdfs/media-35514.pdf'...
-    Downloaded 'http://www.spiegel.de/media/media-35517.pdf' to './imperfect-forward-secrecy.pdf-referenced-pdfs/media-35517.pdf'...
-    Downloaded 'http://www.spiegel.de/media/media-35522.pdf' to './imperfect-forward-secrecy.pdf-referenced-pdfs/media-35522.pdf'...
-    Downloaded 'http://www.spiegel.de/media/media-35519.pdf' to './imperfect-forward-secrecy.pdf-referenced-pdfs/media-35519.pdf'...
-    Downloaded 'http://www.spiegel.de/media/media-35509.pdf' to './imperfect-forward-secrecy.pdf-referenced-pdfs/media-35509.pdf'...
-    Downloaded 'http://www.spiegel.de/media/media-35528.pdf' to './imperfect-forward-secrecy.pdf-referenced-pdfs/media-35528.pdf'...
-    Downloaded 'http://www.spiegel.de/media/media-35513.pdf' to './imperfect-forward-secrecy.pdf-referenced-pdfs/media-35513.pdf'...
-    Downloaded 'http://www.spiegel.de/media/media-35520.pdf' to './imperfect-forward-secrecy.pdf-referenced-pdfs/media-35520.pdf'...
-    Downloaded 'http://www.spiegel.de/media/media-35533.pdf' to './imperfect-forward-secrecy.pdf-referenced-pdfs/media-35533.pdf'...
-    Downloaded 'http://www.spiegel.de/media/media-35551.pdf' to './imperfect-forward-secrecy.pdf-referenced-pdfs/media-35551.pdf'...
-    Downloaded 'http://www.spiegel.de/media/media-35527.pdf' to './imperfect-forward-secrecy.pdf-referenced-pdfs/media-35527.pdf'...
-    Downloaded 'http://www.spiegel.de/media/media-35526.pdf' to './imperfect-forward-secrecy.pdf-referenced-pdfs/media-35526.pdf'...
-    Downloaded 'http://cryptome.org/2013/08/spy-budget-fy13.pdf' to './imperfect-forward-secrecy.pdf-referenced-pdfs/spy-budget-fy13.pdf'...
-    Downloaded 'http://www.spiegel.de/media/media-35515.pdf' to './imperfect-forward-secrecy.pdf-referenced-pdfs/media-35515.pdf'...
-    Downloaded 'http://www.spiegel.de/media/media-35529.pdf' to './imperfect-forward-secrecy.pdf-referenced-pdfs/media-35529.pdf'...
-    Downloaded 'http://www.spiegel.de/media/media-35671.pdf' to './imperfect-forward-secrecy.pdf-referenced-pdfs/media-35671.pdf'...
+    Downloading 17 pdfs to './'...
+    All done!
 
 Feedback, ideas and pull requests are welcome!
 
@@ -135,12 +115,8 @@ Feedback, ideas and pull requests are welcome!
 Various
 -------
 
-Author: Chris Hager <chris@metachris.org>
+Author: Chris Hager <chris@linuxuser.at>
+
+Homepage: http://www.metachris.com/pdfx
 
 License: GPLv3
-
-TODO
-
-* Quiet mode -> use as library
-* Output in JSON only
-* Reduce PyPDF2 lib to only used parts

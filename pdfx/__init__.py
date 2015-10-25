@@ -30,13 +30,4 @@ __author__ = 'Chris Hager'
 __license__ = 'GPLv3'
 __copyright__ = 'Copyright 2015 Chris Hager'
 
-import logging
-
 from .pdfx import PDFx
-
-
-# logging.basicConfig
-def open_pdf(pdf_uri):
-    logging.basicConfig(level=logging.INFO,
-                        format='%(levelname)s - %(module)s - %(message)s')
-    return PDFx(pdf_uri)

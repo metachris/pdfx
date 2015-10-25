@@ -64,7 +64,7 @@ def main():
                             format='%(levelname)s - %(module)s - %(message)s')
 
     try:
-        pdf = pdfx.open_pdf(args.pdf)
+        pdf = pdfx.PDFx(args.pdf)
     except FileNotFoundError as e:
         exit_with_error(ERROR_FILE_NOT_FOUND, str(e))
     except DownloadError as e:
@@ -86,16 +86,21 @@ def main():
         exit_with_error(ERROR_COULD_NOT_EXTRACT_PDF, str(e))
 
     if not args.json:
-        urls = pdf.get_urls(pdf_only=args.verbose == 0)
-        print("%s URLs:" % len(urls))
+        if args.verbose == 0:
+            urls = pdf.get_urls(pdf_only=True)
+            print("\n%s PDF URLs:" % len(urls))
+        else:
+            urls = pdf.get_urls(pdf_only=False)
+            print("\n%s URLs:" % len(urls))
         for url in urls:
-            print("  - %s" % url)
+            print("- %s" % url)
 
     try:
-        if not args.json:
-            print("Downloading %s pdfs..." % len(pdf.urls_pdf))
         if args.download_pdfs:
+            if not args.json:
+                print("\nDownloading %s pdfs to '%s'..." % (len(pdf.urls_pdf, args.download_pdfs)))
             pdf.download_pdfs(args.download_pdfs)
+            print("All done!")
     except Exception as e:
         exit_with_error(ERROR_DOWNLOAD, str(e))
 

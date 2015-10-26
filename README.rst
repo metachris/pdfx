@@ -1,3 +1,6 @@
+.. image:: https://badge.fury.io/py/pdfx.svg
+    :target: https://badge.fury.io/py/pdfx
+
 Extract metadata and all links from a local or remote PDF, and optionally download all referenced PDFs.
 
 **Features**

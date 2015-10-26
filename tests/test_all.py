@@ -21,3 +21,4 @@ def test_all():
     pdf.analyze_text()
     urls = pdf.get_urls(pdf_only=True)
     assert len(urls) == 17
+    # pdf.download_pdfs("/tmp/")

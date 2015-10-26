@@ -1,7 +1,6 @@
+====
 PDFx
 ====
-
-Extract metadata and links from a local or remote PDF, and optionally download all referenced PDFs.
 
 .. image:: https://badge.fury.io/py/pdfx.svg
    :target: https://pypi.python.org/pypi/pdfx
@@ -12,6 +11,11 @@ Extract metadata and links from a local or remote PDF, and optionally download a
 .. image:: https://img.shields.io/badge/license-Apache-blue.svg
    :target: https://github.com/metachris/pdfx/blob/master/LICENSE
 
+Introduction
+============
+
+Extract metadata and links from a local or remote PDF, and optionally download all referenced PDFs.
+
 **Features**
 
 * Extract metadata and PDF URLs from a given PDF
@@ -21,7 +25,7 @@ Extract metadata and links from a local or remote PDF, and optionally download a
 * Compatible with Python 2 and 3
 
 Getting Started
----------------
+===============
 
 Grab a copy of the code with ``easy_install`` or ``pip``, and run it::
 
@@ -51,7 +55,7 @@ Run ``pdfx -h`` to see the help output::
 
 
 Examples
---------
+========
 
 Lets take a look at this paper: https://weakdh.org/imperfect-forward-secrecy.pdf::
 
@@ -121,7 +125,10 @@ Download all referenced pdfs with **``-d``** (for ``download-pdfs``) to the spec
     Downloading 17 pdfs to './'...
     All done!
 
-Usage as Python library::
+Usage as Python library
+=======================
+
+::
 
     >>> import pdfx
     >>> pdf = pdfx.PDFx("filename-or-url.pdf")
@@ -130,14 +137,19 @@ Usage as Python library::
     >>> print(pdf.get_urls())
     >>> pdf.download_pdfs("target-directory")
 
-Feedback, ideas and pull requests are welcome!
+
+TODO
+====
+
+* `Kivy<http://kivy.org>`_ cross-platform GUI
+* Work with other targets than only PDF (eg. html, text, etc)
 
 
 Various
--------
+=======
 
-Author: Chris Hager <chris@linuxuser.at>
+* Author: Chris Hager <chris@linuxuser.at>
+* Homepage: http://www.metachris.com/pdfx
+* License: Apache
 
-Homepage: http://www.metachris.com/pdfx
-
-License: Apache
+Feedback, ideas and pull requests are welcome!

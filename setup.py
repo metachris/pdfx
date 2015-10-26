@@ -36,7 +36,7 @@ setup(
     author_email='chris@linuxuser.at',
 
     # Choose your license
-    license='GPLv3',
+    license='Apache',
 
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[

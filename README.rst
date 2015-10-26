@@ -1,7 +1,16 @@
-.. image:: https://badge.fury.io/py/pdfx.svg
-    :target: https://badge.fury.io/py/pdfx
+PDFx
+====
 
-Extract metadata and all links from a local or remote PDF, and optionally download all referenced PDFs.
+Extract metadata and links from a local or remote PDF, and optionally download all referenced PDFs.
+
+.. image:: https://badge.fury.io/py/pdfx.svg
+   :target: https://pypi.python.org/pypi/pdfx
+
+.. image:: https://travis-ci.org/metachris/pdfx.svg?branch=master
+   :target: https://travis-ci.org/metachris/pdfx
+
+.. image:: https://img.shields.io/badge/license-Apache-blue.svg
+   :target: https://github.com/metachris/pdfx/blob/master/LICENSE
 
 **Features**
 
@@ -131,4 +140,4 @@ Author: Chris Hager <chris@linuxuser.at>
 
 Homepage: http://www.metachris.com/pdfx
 
-License: GPLv3
+License: Apache

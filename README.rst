@@ -11,9 +11,9 @@ Extract metadata and all links from a local or remote PDF, and optionally downlo
 Getting Started
 ---------------
 
-Grab a copy of the code and run it::
+Grab a copy of the code with ``easy_install`` or ``pip``, and run it::
 
-    $ pip install pdfx
+    $ easy_install -U pdfx
     ...
     $ pdfx <pdf-file-or-url>
 

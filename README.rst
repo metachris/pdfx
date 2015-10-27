@@ -38,7 +38,7 @@ Run ``pdfx -h`` to see the help output::
     $ pdfx -h
     usage: pdfx [-h] [-d OUTPUT_DIRECTORY] [-j] [-v] [--debug] [--version] pdf
 
-    Get infos and links from a PDF, and optionallydownload all referenced PDFs.
+    Get infos and links from a PDF, and optionally download all referenced PDFs.
     See http://www.metachris.com/pdfx for more information.
 
     positional arguments:

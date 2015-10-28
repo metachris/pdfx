@@ -19,10 +19,13 @@ Extract metadata and links from a local or remote PDF, and optionally download a
 **Features**
 
 * Extract metadata and PDF URLs from a given PDF
-* **Download all PDFs referenced in the original PDF**
 * Works with local and online pdfs
+* **Download all PDFs referenced in the original PDF**
+* Fast, parallel download of references
+* Output as text or JSON (using the ``-j`` flag)
 * Use as command-line tool or Python package
 * Compatible with Python 2 and 3
+
 
 Getting Started
 ===============
@@ -141,8 +144,7 @@ Usage as Python library
 TODO
 ====
 
-* `Kivy<http://kivy.org>`_ cross-platform GUI
-* Work with other targets than only PDF (eg. html, text, etc)
+* https://github.com/metachris/pdfx/issues
 
 
 Various
@@ -152,4 +154,4 @@ Various
 * Homepage: http://www.metachris.com/pdfx
 * License: Apache
 
-Feedback, ideas and pull requests are welcome!
+Feedback, ideas and pull requests are welcome! If you enhance PDFx please also add yourself to the AUTHORS file!

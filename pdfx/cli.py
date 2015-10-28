@@ -25,7 +25,7 @@ ERROR_PDF_INVALID = 4
 ERROR_COULD_NOT_EXTRACT_PDF = 5
 
 
-def main():
+def create_parser():
     parser = argparse.ArgumentParser(
         description="Get infos and links from a PDF, and optionally"
         "download all referenced PDFs.\nSee "
@@ -55,7 +55,11 @@ def main():
                         action="version",
                         version="%(prog)s (version {version})".format(
                             version=pdfx.__version__))
+    return parser
 
+
+def main():
+    parser = create_parser()
     args = parser.parse_args()
 
     if args.debug:
@@ -76,7 +80,7 @@ def main():
         print("Document infos:")
         for k, v in sorted(pdf.get_metadata().items()):
             if v:
-                print("- %s = %s" % (k, str(v).strip("/")))
+                print("- %s = %s" % (k, unicode(v).strip("/")))
 
     # Analyze PDF Text
     try:

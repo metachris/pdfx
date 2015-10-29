@@ -30,10 +30,11 @@ https://www.metachris.com/pdfx
 Copyright (c) 2015, Chris Hager <chris@linuxuser.at>
 License: GPLv3
 """
-from __future__ import absolute_import, division, print_function
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 __title__ = 'pdfx'
-__version__ = '1.0.3'
+__version__ = '1.0.4'
 __author__ = 'Chris Hager'
 __license__ = 'GPLv3'
 __copyright__ = 'Copyright 2015 Chris Hager'
@@ -58,8 +59,8 @@ else:
 
 from .libs import PyPDF2, urlmarker
 from .threadeddownload import ThreadedDownloader
-from .exceptions import (
-    FileNotFoundError, DownloadError, PDFInvalidError, PDFExtractionError)
+from .exceptions import (FileNotFoundError, DownloadError, PDFInvalidError,
+                         PDFExtractionError)
 
 logger = logging.getLogger(__name__)
 

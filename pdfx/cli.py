@@ -4,7 +4,8 @@
 Command line tool to get metadata and URLs from a local or remote PDF,
 and optionally download all referenced PDFs.
 """
-from __future__ import absolute_import, division, print_function
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import sys
 import logging

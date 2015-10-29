@@ -89,13 +89,13 @@ def main():
         for k, v in sorted(pdf.get_metadata().items()):
             if v:
                 print("- %s = %s" % (k, parse_str(v).strip("/")))
-
-    # Analyze PDF Text
-    try:
-        pdf.analyze_text()
-    except pdfx.exceptions.PDFExtractionError as e:
-        raise
-        exit_with_error(ERROR_COULD_NOT_EXTRACT_PDF, str(e))
+    #
+    # # Analyze PDF Text
+    # try:
+    #     pdf.analyze_text()
+    # except pdfx.exceptions.PDFExtractionError as e:
+    #     raise
+    #     exit_with_error(ERROR_COULD_NOT_EXTRACT_PDF, str(e))
 
     if not args.json:
         if args.verbose == 0:

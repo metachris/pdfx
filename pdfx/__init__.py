@@ -58,10 +58,11 @@ else:
     parse_str = str
 
 from .libs import urlmarker
-from .backend import PDFMinerBackend as PDFBackend
+from .backend import PDFMinerBackend, TextBackend
 from .threadeddownload import ThreadedDownloader
 from .exceptions import (FileNotFoundError, DownloadError, PDFInvalidError,
                          PDFExtractionError)
+from .libs.pdfminer.pdfparser import PDFSyntaxError
 
 logger = logging.getLogger(__name__)
 
@@ -83,87 +84,85 @@ class PDFx(object):
     >>> pdf.download_pdfs("target-directory")
     """
     # Available after init
-    pdf_uri = None  # Original URI
-    pdf_is_url = False  # False if file
-    pdf_fn = None  # Filename
-    pdf_stream = None  # ByteIO Stream
-    pdf = None  # PdfFileReader Instance
-    pdf_metadata = {}  # PDF Metadata
+    uri = None  # Original URI
+    fn = None  # Filename part of URI
+    is_url = False  # False if file
+    is_pdf = True
+
+    stream = None  # ByteIO Stream
+    reader = None  # ReaderBackend
     summary = {}
 
-    # Available after analyze_text()
-    urls = []  # All urls
-    urls_pdf = []  # PDF urls
-
-    def __init__(self, pdf_uri):
+    def __init__(self, uri):
         """
         Open PDF handle and parse PDF metadata
-        - `pdf_uri` can bei either a filename or an url
+        - `uri` can bei either a filename or an url
         """
-        logger.debug("Init with uri: %s" % pdf_uri)
+        logger.debug("Init with uri: %s" % uri)
 
-        self.pdf_uri = pdf_uri
-        self.urls = []
-        self.urls_pdf = []
+        self.uri = uri
 
         # Find out whether pdf is an URL or local file
-        url = re.findall(urlmarker.URL_REGEX, pdf_uri)
-        self.pdf_is_url = len(url)
+        url = re.findall(urlmarker.URL_REGEX, uri, re.IGNORECASE)
+        self.is_url = len(url)
 
-        # Grab content of referenced PDF
-        if self.pdf_is_url:
-            logger.debug("Reading url '%s'..." % pdf_uri)
-            self.pdf_fn = pdf_uri.split("/")[-1]
+        # Grab content of reference
+        if self.is_url:
+            logger.debug("Reading url '%s'..." % uri)
+            self.fn = uri.split("/")[-1]
             try:
-                content = urlopen(Request(pdf_uri)).read()
-                self.pdf_stream = BytesIO(content)
+                content = urlopen(Request(uri)).read()
+                self.stream = BytesIO(content)
             except Exception as e:
                 raise DownloadError("Error downloading '%s' (%s)" %
-                                    (pdf_uri, str(e)))
+                                    (uri, str(e)))
 
         else:
-            if not os.path.isfile(pdf_uri):
+            if not os.path.isfile(uri):
                 raise FileNotFoundError(
-                    "Invalid filename and not an url: '%s'" % pdf_uri)
-            self.pdf_fn = os.path.basename(pdf_uri)
-            self.pdf_stream = open(pdf_uri, "rb")
+                    "Invalid filename and not an url: '%s'" % uri)
+            self.fn = os.path.basename(uri)
+            self.stream = open(uri, "rb")
 
-        # Create PDF Backend instance
+        # Create ReaderBackend instance
         try:
-            self.pdf = PDFBackend(self.pdf_stream)
+            self.reader = PDFMinerBackend(self.stream)
+        except PDFSyntaxError as e:
+            raise PDFInvalidError("Invalid PDF (%s)" % str(e))
+
+            # Could try to create a TextReader
+            logger.info(str(e))
+            logger.info("Trying to create a TextReader backend...")
+            self.stream.seek(0)
+            self.reader = TextBackend(self.stream)
+            self.is_pdf = False
         except Exception as e:
             raise
             raise PDFInvalidError("Invalid PDF (%s)" % str(e))
 
-        # Extract metadata
-        self.pdf_metadata = self.pdf.get_metadata();
-
         # Save metadata to user-supplied directory
         self.summary = {
-            "source": "url" if self.pdf_is_url else "file",
-            "location": self.pdf_uri,
-            "metadata": self.pdf_metadata,
+            "source": "url" if self.is_url else "file",
+            "filename": self.fn,
+            "location": self.uri,
+            "metadata": self.reader.get_metadata(),
         }
 
-    def get_metadata(self):
-        return self.pdf_metadata
-
-    def analyze_text(self):
-        logger.debug("Analyzing text...")
-
-        text = self.pdf.get_text()
-
-        # Process PDF
-        # print("text:", text)
-        print("urls-text:", self.pdf.get_urls_text())
-        print("\nurls-annotations:", self.pdf.get_urls_annotations())
+        # print()
+        # print("urls-text:", self.pdf.get_urls_text())
+        # print("urls-annotations:", self.pdf.get_urls_annotations())
+        # print()
+        # print("urls:", self.pdf.get_urls())
 
         # Search for URLs
-        self.summary["urls"] = self.pdf.get_urls()
+        self.summary["urls"] = self.reader.get_urls()
+        print(self.summary)
+
+    def get_metadata(self):
+        return self.reader.get_metadata()
 
     def get_urls(self, pdf_only=False, sort=False):
-        urls = self.urls_pdf if pdf_only else self.urls
-        return sorted(urls) if sort else urls
+        return self.reader.get_urls(pdf_only, sort)
 
     def download_pdfs(self, target_dir):
         logger.debug("Download pdfs to %s" % target_dir)
@@ -176,10 +175,10 @@ class PDFx(object):
             logger.debug("Created output directory '%s'" % target_dir)
 
         # Save original PDF to user-supplied directory
-        fn = os.path.join(target_dir, self.pdf_fn)
+        fn = os.path.join(target_dir, self.fn)
         with open(fn, "wb") as f:
-            self.pdf_stream.seek(0)
-            shutil.copyfileobj(self.pdf_stream, f)
+            self.stream.seek(0)
+            shutil.copyfileobj(self.stream, f)
         logger.debug("- Saved original pdf as '%s'" % fn)
 
         fn_json = "%s.infos.json" % fn
@@ -188,13 +187,14 @@ class PDFx(object):
         logger.debug("- Saved metadata to '%s'" % fn_json)
 
         # Download references
-        if self.urls_pdf:
+        urls = self.reader.get_urls(pdf_only=True)
+        if urls:
             dir_referenced_pdfs = os.path.join(
-                target_dir, "%s-referenced-pdfs" % self.pdf_fn)
+                target_dir, "%s-referenced-pdfs" % self.fn)
             logger.debug("Downloading %s referenced pdfs..." %
-                         len(self.urls_pdf))
+                         len(urls))
 
             # Download urls as a set to avoid duplicates
-            tdl = ThreadedDownloader(set(self.urls_pdf), dir_referenced_pdfs)
+            tdl = ThreadedDownloader(urls, dir_referenced_pdfs)
             tdl.start_downloads()
             tdl.wait_for_downloads()

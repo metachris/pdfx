@@ -33,7 +33,7 @@ License: GPLv3
 from __future__ import absolute_import, division, print_function
 
 __title__ = 'pdfx'
-__version__ = '1.0.1'
+__version__ = '1.0.3'
 __author__ = 'Chris Hager'
 __license__ = 'GPLv3'
 __copyright__ = 'Copyright 2015 Chris Hager'
@@ -49,10 +49,12 @@ if sys.version_info < (3, 0):
     # Python 2
     from cStringIO import StringIO as BytesIO
     from urllib2 import Request, urlopen
+    parse_str = unicode
 else:
     # Python 3
     from io import BytesIO
     from urllib.request import Request, urlopen
+    parse_str = str
 
 from .libs import PyPDF2, urlmarker
 from .threadeddownload import ThreadedDownloader
@@ -134,11 +136,13 @@ class PDFx(object):
         self.pdf_metadata = {}
         self.pdf_metadata["Pages"] = self.pdf.getNumPages()
 
-        for k, v in self.pdf.getDocumentInfo().items():
-            if isinstance(v, PyPDF2.generic.IndirectObject):
-                self.pdf_metadata[k.strip("/")] = str(v.getObject())
-            else:
-                self.pdf_metadata[k.strip("/")] = str(v)
+        doc_info = self.pdf.getDocumentInfo()
+        if doc_info:
+            for k, v in doc_info.items():
+                if isinstance(v, PyPDF2.generic.IndirectObject):
+                    self.pdf_metadata[k.strip("/")] = parse_str(v.getObject())
+                else:
+                    self.pdf_metadata[k.strip("/")] = parse_str(v)
 
         # Save metadata to user-supplied directory
         self.summary = {

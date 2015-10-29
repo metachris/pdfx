@@ -13,6 +13,13 @@ import json
 
 import pdfx
 
+if sys.version_info < (3, 0):
+    # Python 2
+    parse_str = unicode
+else:
+    # Python 3
+    parse_str = str
+
 
 def exit_with_error(code, *objs):
     print("ERROR %s:" % code, *objs, file=sys.stderr)
@@ -80,7 +87,7 @@ def main():
         print("Document infos:")
         for k, v in sorted(pdf.get_metadata().items()):
             if v:
-                print("- %s = %s" % (k, unicode(v).strip("/")))
+                print("- %s = %s" % (k, parse_str(v).strip("/")))
 
     # Analyze PDF Text
     try:
@@ -102,7 +109,7 @@ def main():
         if args.download_pdfs:
             if not args.json:
                 print("\nDownloading %s pdfs to '%s'..." %
-                      (len(pdf.urls_pdf, args.download_pdfs)))
+                      (len(pdf.urls_pdf), args.download_pdfs))
             pdf.download_pdfs(args.download_pdfs)
             print("All done!")
     except Exception as e:

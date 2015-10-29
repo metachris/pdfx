@@ -61,7 +61,7 @@ def isBytes(b):
     return isinstance(b, bytes_type)
 
 
-#custom implementation of warnings.formatwarning
+# custom implementation of warnings.formatwarning
 def formatWarning(message, category, filename, lineno, line=None):
     file = filename.replace("/", "\\").rsplit("\\", 1)[1]  # find the file name
     return "%s: %s [%s:%s]\n" % (category.__name__, message, file, lineno)
@@ -125,7 +125,7 @@ def readUntilRegex(stream, regex, ignore_eof=False):
         tok = stream.read(16)
         if not tok:
             # stream has truncated prematurely
-            if ignore_eof == True:
+            if ignore_eof:
                 return name
             else:
                 raise PdfStreamError("Stream has ended unexpectedly")

@@ -277,7 +277,7 @@ class ASCII85Decode(object):
                 if len(retval) == 0 and c == "<" and data[x + 1] == "~":
                     x += 2
                     continue
-                #elif c.isspace():
+                # elif c.isspace():
                 #    x += 1
                 #    continue
                 elif c == 'z':

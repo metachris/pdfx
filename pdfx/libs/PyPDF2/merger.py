@@ -90,19 +90,20 @@ class PdfFileMerger(object):
         :param int position: The *page number* to insert this file. File will
             be inserted after the given number.
 
-        :param fileobj: A File Object or an object that supports the standard read
-            and seek methods similar to a File Object. Could also be a
+        :param fileobj: A File Object or an object that supports the standard
+            read and seek methods similar to a File Object. Could also be a
             string representing a path to a PDF file.
 
-        :param str bookmark: Optionally, you may specify a bookmark to be applied at
-            the beginning of the included file by supplying the text of the bookmark.
+        :param str bookmark: Optionally, you may specify a bookmark to be
+            applied at the beginning of the included file by supplying the
+            text of the bookmark.
 
-        :param pages: can be a :ref:`Page Range <page-range>` or a ``(start, stop[, step])`` tuple
-            to merge only the specified range of pages from the source
-            document into the output document.
+        :param pages: can be a :ref:`Page Range <page-range>` or a
+            ``(start, stop[, step])`` tuple to merge only the specified range
+            of pages from the source document into the output document.
 
-        :param bool import_bookmarks: You may prevent the source document's bookmarks
-            from being imported by specifying this as ``False``.
+        :param bool import_bookmarks: You may prevent the source document's
+            bookmarks from being imported by specifying this as ``False``.
         """
 
         # This parameter is passed to self.inputs.append and means
@@ -111,8 +112,8 @@ class PdfFileMerger(object):
 
         # If the fileobj parameter is a string, assume it is a path
         # and create a file object at that location. If it is a file,
-        # copy the file's contents into a BytesIO (or StreamIO) stream object; if
-        # it is a PdfFileReader, copy that reader's stream into a
+        # copy the file's contents into a BytesIO (or StreamIO) stream object;
+        # if it is a PdfFileReader, copy that reader's stream into a
         # BytesIO (or StreamIO) stream.
         # If fileobj is none of the above types, it is not modified
         decryption_key = None
@@ -141,7 +142,7 @@ class PdfFileMerger(object):
             pdfr._decryption_key = decryption_key
 
         # Find the range of pages to merge.
-        if pages == None:
+        if pages is None:
             pages = (0, pdfr.getNumPages())
         elif isinstance(pages, PageRange):
             pages = pages.indices(pdfr.getNumPages())
@@ -194,22 +195,24 @@ class PdfFileMerger(object):
                pages=None,
                import_bookmarks=True):
         """
-        Identical to the :meth:`merge()<merge>` method, but assumes you want to concatenate
-        all pages onto the end of the file instead of specifying a position.
+        Identical to the :meth:`merge()<merge>` method, but assumes you want
+        to concatenate all pages onto the end of the file instead of specifying
+        a position.
 
-        :param fileobj: A File Object or an object that supports the standard read
-            and seek methods similar to a File Object. Could also be a
+        :param fileobj: A File Object or an object that supports the standard
+            read and seek methods similar to a File Object. Could also be a
             string representing a path to a PDF file.
 
-        :param str bookmark: Optionally, you may specify a bookmark to be applied at
-            the beginning of the included file by supplying the text of the bookmark.
+        :param str bookmark: Optionally, you may specify a bookmark to be
+            applied at the beginning of the included file by supplying the text
+            of the bookmark.
 
-        :param pages: can be a :ref:`Page Range <page-range>` or a ``(start, stop[, step])`` tuple
-            to merge only the specified range of pages from the source
-            document into the output document.
+        :param pages: can be a :ref:`Page Range <page-range>` or a
+            ``(start, stop[, step])`` tuple to merge only the specified range
+            of pages from the source document into the output document.
 
-        :param bool import_bookmarks: You may prevent the source document's bookmarks
-            from being imported by specifying this as ``False``.
+        :param bool import_bookmarks: You may prevent the source document's
+            bookmarks from being imported by specifying this as ``False``.
         """
 
         self.merge(len(self.pages), fileobj, bookmark, pages, import_bookmarks)
@@ -227,13 +230,15 @@ class PdfFileMerger(object):
             my_file = True
 
         # Add pages to the PdfFileWriter
-        # The commented out line below was replaced with the two lines below it to allow PdfFileMerger to work with PyPdf 1.13
+        # The commented out line below was replaced with the two lines below it
+        # to allow PdfFileMerger to work with PyPdf 1.13
         for page in self.pages:
             self.output.addPage(page.pagedata)
             page.out_pagedata = self.output.getReference(
                 self.output._pages.getObject()["/Kids"][-1].getObject())
-            #idnum = self.output._objects.index(self.output._pages.getObject()["/Kids"][-1].getObject()) + 1
-            #page.out_pagedata = IndirectObject(idnum, 0, self.output)
+            # idnum = self.output._objects.index(
+            # self.output._pages.getObject()["/Kids"][-1].getObject()) + 1
+            # page.out_pagedata = IndirectObject(idnum, 0, self.output)
 
             # Once all pages are added, create bookmarks to point at those pages
         self._write_dests()
@@ -354,12 +359,12 @@ class PdfFileMerger(object):
                         pageno = i
                         pdf = p.src
                         break
-            if pageno != None:
+            if pageno is not None:
                 self.output.addNamedDestinationObject(v)
 
     def _write_bookmarks(self, bookmarks=None, parent=None):
 
-        if bookmarks == None:
+        if bookmarks is None:
             bookmarks = self.bookmarks
 
         last_added = None
@@ -373,10 +378,10 @@ class PdfFileMerger(object):
             if '/Page' in b:
                 for i, p in enumerate(self.pages):
                     if p.id == b['/Page']:
-                        #b[NameObject('/Page')] = p.out_pagedata
+                        # b[NameObject('/Page')] = p.out_pagedata
                         args = [NumberObject(p.id), NameObject(b['/Type'])]
-                        #nothing more to add
-                        #if b['/Type'] == '/Fit' or b['/Type'] == '/FitB'
+                        # nothing more to add
+                        # if b['/Type'] == '/Fit' or b['/Type'] == '/FitB'
                         if b['/Type'] == '/FitH' or b['/Type'] == '/FitBH':
                             if '/Top' in b and not isinstance(b['/Top'],
                                                               NullObject):
@@ -439,7 +444,7 @@ class PdfFileMerger(object):
                         pageno = i
                         pdf = p.src
                         break
-            if pageno != None:
+            if pageno is not None:
                 del b['/Page'], b['/Type']
                 last_added = self.output.addBookmarkDict(b, parent)
 
@@ -455,14 +460,14 @@ class PdfFileMerger(object):
                 if np.getObject() == p.pagedata.getObject():
                     pageno = p.id
 
-            if pageno != None:
+            if pageno is not None:
                 nd[NameObject('/Page')] = NumberObject(pageno)
             else:
                 raise ValueError("Unresolved named destination '%s'" %
                                  (nd['/Title'], ))
 
     def _associate_bookmarks_to_pages(self, pages, bookmarks=None):
-        if bookmarks == None:
+        if bookmarks is None:
             bookmarks = self.bookmarks
 
         for b in bookmarks:
@@ -480,13 +485,13 @@ class PdfFileMerger(object):
                 if bp.getObject() == p.pagedata.getObject():
                     pageno = p.id
 
-            if pageno != None:
+            if pageno is not None:
                 b[NameObject('/Page')] = NumberObject(pageno)
             else:
                 raise ValueError("Unresolved bookmark '%s'" % (b['/Title'], ))
 
     def findBookmark(self, bookmark, root=None):
-        if root == None:
+        if root is None:
             root = self.bookmarks
 
         for i, b in enumerate(root):
@@ -508,7 +513,7 @@ class PdfFileMerger(object):
         :param parent: A reference to a parent bookmark to create nested
             bookmarks.
         """
-        if parent == None:
+        if parent is None:
             iloc = [len(self.bookmarks) - 1]
         elif isinstance(parent, list):
             iloc = parent
@@ -519,7 +524,7 @@ class PdfFileMerger(object):
             TextStringObject(title), NumberObject(pagenum),
             NameObject('/FitH'), NumberObject(826))
 
-        if parent == None:
+        if parent is None:
             self.bookmarks.append(dest)
         else:
             bmparent = self.bookmarks

@@ -57,7 +57,8 @@ else:
     from urllib.request import Request, urlopen
     parse_str = str
 
-from .libs import PyPDF2, urlmarker
+from .libs import urlmarker
+from .backend import PDFMinerBackend as PDFBackend
 from .threadeddownload import ThreadedDownloader
 from .exceptions import (FileNotFoundError, DownloadError, PDFInvalidError,
                          PDFExtractionError)
@@ -127,23 +128,15 @@ class PDFx(object):
             self.pdf_fn = os.path.basename(pdf_uri)
             self.pdf_stream = open(pdf_uri, "rb")
 
-        # Create PdfFileReader instance
+        # Create PDF Backend instance
         try:
-            self.pdf = PyPDF2.PdfFileReader(self.pdf_stream)
+            self.pdf = PDFBackend(self.pdf_stream)
         except Exception as e:
+            raise
             raise PDFInvalidError("Invalid PDF (%s)" % str(e))
 
         # Extract metadata
-        self.pdf_metadata = {}
-        self.pdf_metadata["Pages"] = self.pdf.getNumPages()
-
-        doc_info = self.pdf.getDocumentInfo()
-        if doc_info:
-            for k, v in doc_info.items():
-                if isinstance(v, PyPDF2.generic.IndirectObject):
-                    self.pdf_metadata[k.strip("/")] = parse_str(v.getObject())
-                else:
-                    self.pdf_metadata[k.strip("/")] = parse_str(v)
+        self.pdf_metadata = self.pdf.get_metadata();
 
         # Save metadata to user-supplied directory
         self.summary = {
@@ -158,20 +151,15 @@ class PDFx(object):
     def analyze_text(self):
         logger.debug("Analyzing text...")
 
-        text = ""
-        for page in self.pdf.pages:
-            text = text + page.extractText()
+        text = self.pdf.get_text()
 
         # Process PDF
-        if len(text.strip()) < 10:
-            raise PDFExtractionError(
-                "Error: Failed extracting text from PDF file.")
+        # print("text:", text)
+        print("urls-text:", self.pdf.get_urls_text())
+        print("\nurls-annotations:", self.pdf.get_urls_annotations())
 
         # Search for URLs
-        self.urls = re.findall(urlmarker.URL_REGEX, text)
-        self.urls_pdf = [url for url in self.urls
-                         if url.lower().endswith(".pdf")]
-        self.summary["urls"] = self.urls
+        self.summary["urls"] = self.pdf.get_urls()
 
     def get_urls(self, pdf_only=False, sort=False):
         urls = self.urls_pdf if pdf_only else self.urls

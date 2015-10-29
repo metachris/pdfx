@@ -1,3 +1,15 @@
+TODO:
+
+$ pdfx test-pdfs/new/reftest.pdf
+set(['http://arxiv.org/abs/1510.05264v1', 'http://arxiv.org/abs/1506.03889', 'http://arxiv.org/abs/1508.06224', 'http://arxiv.org/abs/1501.06336', 'http://arxiv.org/abs/1503.00396', 'http://arxiv.org/abs/1412.0460', 'http://arxiv.org/abs/1508.04491', 'http://arxiv.org/abs/1509.03156', 'http://arxiv.org/abs/1508.03900', '74.70.Ad', 'http://arxiv.org/abs/1509.07451'])
+Document infos:
+urls-text: set(['74.70.Ad'])
+
+urls-annotations: set(['http://arxiv.org/abs/1503.00396', 'http://arxiv.org/abs/1506.03889', 'http://arxiv.org/abs/1508.06224', 'http://arxiv.org/abs/1501.06336', 'http://arxiv.org/abs/1510.05264v1', 'http://arxiv.org/abs/1412.0460', 'http://arxiv.org/abs/1508.04491', 'http://arxiv.org/abs/1509.03156', 'http://arxiv.org/abs/1508.03900', 'http://arxiv.org/abs/1509.07451'])
+
+0 PDF URLs:
+
+
 ====
 PDFx
 ====

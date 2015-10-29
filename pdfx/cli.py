@@ -94,6 +94,7 @@ def main():
     try:
         pdf.analyze_text()
     except pdfx.exceptions.PDFExtractionError as e:
+        raise
         exit_with_error(ERROR_COULD_NOT_EXTRACT_PDF, str(e))
 
     if not args.json:
@@ -114,6 +115,7 @@ def main():
             pdf.download_pdfs(args.download_pdfs)
             print("All done!")
     except Exception as e:
+        raise
         exit_with_error(ERROR_DOWNLOAD, str(e))
 
     if args.json:

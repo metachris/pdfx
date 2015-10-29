@@ -58,7 +58,7 @@ else:
     parse_str = str
 
 from .libs import urlmarker
-from .backend import PDFMinerBackend, TextBackend
+from .backends import PDFMinerBackend, TextBackend
 from .threadeddownload import ThreadedDownloader
 from .exceptions import (FileNotFoundError, DownloadError, PDFInvalidError,
                          PDFExtractionError)

@@ -30,14 +30,8 @@ https://www.metachris.com/pdfx
 Copyright (c) 2015, Chris Hager <chris@linuxuser.at>
 License: GPLv3
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-__title__ = 'pdfx'
-__version__ = '1.0.4'
-__author__ = 'Chris Hager'
-__license__ = 'GPLv3'
-__copyright__ = 'Copyright 2015 Chris Hager'
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
 
 import os
 import re
@@ -46,23 +40,30 @@ import json
 import shutil
 import logging
 
-if sys.version_info < (3, 0):
+__title__ = 'pdfx'
+__version__ = '1.0.4'
+__author__ = 'Chris Hager'
+__license__ = 'GPLv3'
+__copyright__ = 'Copyright 2015 Chris Hager'
+
+IS_PY2 = sys.version_info < (3, 0)
+
+if IS_PY2:
     # Python 2
     from cStringIO import StringIO as BytesIO
     from urllib2 import Request, urlopen
-    parse_str = unicode
 else:
     # Python 3
     from io import BytesIO
     from urllib.request import Request, urlopen
-    parse_str = str
+    unicode = str
 
 from .libs import urlmarker
 from .backends import PDFMinerBackend, TextBackend
 from .threadeddownload import ThreadedDownloader
 from .exceptions import (FileNotFoundError, DownloadError, PDFInvalidError,
                          PDFExtractionError)
-from .libs.pdfminer.pdfparser import PDFSyntaxError
+from pdfminer.pdfparser import PDFSyntaxError
 
 logger = logging.getLogger(__name__)
 
@@ -115,7 +116,7 @@ class PDFx(object):
                 self.stream = BytesIO(content)
             except Exception as e:
                 raise DownloadError("Error downloading '%s' (%s)" %
-                                    (uri, str(e)))
+                                    (uri, unicode(e)))
 
         else:
             if not os.path.isfile(uri):
@@ -128,17 +129,17 @@ class PDFx(object):
         try:
             self.reader = PDFMinerBackend(self.stream)
         except PDFSyntaxError as e:
-            raise PDFInvalidError("Invalid PDF (%s)" % str(e))
+            raise PDFInvalidError("Invalid PDF (%s)" % unicode(e))
 
             # Could try to create a TextReader
-            logger.info(str(e))
+            logger.info(unicode(e))
             logger.info("Trying to create a TextReader backend...")
             self.stream.seek(0)
             self.reader = TextBackend(self.stream)
             self.is_pdf = False
         except Exception as e:
             raise
-            raise PDFInvalidError("Invalid PDF (%s)" % str(e))
+            raise PDFInvalidError("Invalid PDF (%s)" % unicode(e))
 
         # Save metadata to user-supplied directory
         self.summary = {
@@ -155,14 +156,18 @@ class PDFx(object):
         # print("urls:", self.pdf.get_urls())
 
         # Search for URLs
-        self.summary["urls"] = self.reader.get_urls()
-        print(self.summary)
+        # self.summary["urls"] = self.reader.get_urls()
+        # print(self.summary)
+
+    def get_text(self):
+        return self.reader.get_text()
 
     def get_metadata(self):
         return self.reader.get_metadata()
 
-    def get_urls(self, pdf_only=False, sort=False):
-        return self.reader.get_urls(pdf_only, sort)
+    def get_references(self, reftype=None, sort=False):
+        """ reftype can be `None` for all, `pdf`, etc. """
+        return self.reader.get_references(reftype=reftype, sort=sort)
 
     def download_pdfs(self, target_dir):
         logger.debug("Download pdfs to %s" % target_dir)

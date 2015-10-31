@@ -61,8 +61,8 @@ def create_parser():
 
     parser.add_argument("--version",
                         action="version",
-                        version="%(prog)s (version {version})".format(
-                            version=pdfx.__version__))
+                        version="%(prog)s v{version} py{runtime}".format(
+                            version=pdfx.__version__, runtime=sys.version_info.major))
     return parser
 
 
@@ -99,14 +99,15 @@ def main():
 
     if not args.json:
         if args.verbose == 0:
-            urls = pdf.get_urls(pdf_only=True)
-            print("\n%s PDF URLs:" % len(urls))
+            refs = pdf.get_references(reftype="pdf")
+            print("\n%s PDF References:" % len(refs))
         else:
-            urls = pdf.get_urls(pdf_only=False)
-            print("\n%s URLs:" % len(urls))
-        for url in urls:
-            print("- %s" % url)
+            refs = pdf.get_references()
+            print("\n%s References:" % len(refs))
+        for ref in refs:
+            print("- %s" % ref.ref)
 
+    exit(1)
     try:
         if args.download_pdfs:
             if not args.json:

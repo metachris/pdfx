@@ -11,10 +11,16 @@ import re
 from io import BytesIO, StringIO
 from collections import namedtuple
 
+# Character Detection Helper
 import chardet
 
+# Find URLs in text via regex
 from .libs import urlmarker
 
+# Setting `psparser.STRICT` is the first thing to do because it is
+# referenced in the other pdfparser modules
+from pdfminer import psparser
+psparser.STRICT = False
 from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdfparser import PDFParser
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
@@ -24,7 +30,6 @@ from pdfminer.converter import XMLConverter, HTMLConverter, TextConverter
 from pdfminer.cmapdb import CMapDB
 from pdfminer.layout import LAParams
 from pdfminer.image import ImageWriter
-from pdfminer import psparser
 
 
 IS_PY2 = sys.version_info < (3, 0)
@@ -34,7 +39,7 @@ if not IS_PY2:
 
 
 def make_compat_str(in_str):
-    """ Tries to guess encoding and return unicode """
+    """ Tries to guess encoding and return a standard unicode string """
     assert isinstance(in_str, (bytes, str, unicode))
     if not in_str:
         return in_str
@@ -47,15 +52,25 @@ def make_compat_str(in_str):
     return out_str
 
 
-class Reference(namedtuple("Reference", ["ref", "type"])):
+class Reference(object):
     """ Generic Reference """
-    @staticmethod
-    def from_url(s):
-        reftype = "url"
-        if s.lower().endswith(".pdf"):
-            reftype = "pdf"
-        return Reference(s, reftype)
+    ref = ""
+    reftype = "url"
 
+    def __init__(self, uri):
+        self.ref = uri
+        if uri.lower().endswith(".pdf"):
+            self.reftype = "pdf"
+
+    def __hash__(self):
+        return hash(self.ref)
+
+    def __eq__(self, other):
+        assert isinstance(other, Reference)
+        return self.ref == other.ref
+
+    def __str__(self):
+        return "<%s:%s>" % (self.reftype, self.ref)
 
 class ReaderBackend(object):
     """
@@ -76,7 +91,7 @@ class ReaderBackend(object):
     def get_references(self, reftype=None, sort=False):
         refs = self.references
         if reftype:
-            refs = set([ref for ref in refs if ref.type == "pdf"])
+            refs = set([ref for ref in refs if ref.reftype == "pdf"])
         return sorted(refs) if sort else refs
 
 
@@ -116,7 +131,7 @@ class PDFMinerBackend(ReaderBackend):
                 for annot in page.annots:
                     a = annot.resolve()
                     if "A" in a and "URI" in a["A"]:
-                        ref = Reference.from_url(a["A"]["URI"].decode("utf-8"))
+                        ref = Reference(a["A"]["URI"].decode("utf-8"))
                         self.references.add(ref)
 
         # Get text from stream
@@ -127,7 +142,7 @@ class PDFMinerBackend(ReaderBackend):
 
         # Extract URL references from text
         for url in urlmarker.get_urls(self.text):
-            self.references.add(Reference.from_url(url))
+            self.references.add(Reference(url))
 
         # TODO: Search for ArXiv References
 

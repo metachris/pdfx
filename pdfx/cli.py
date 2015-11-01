@@ -105,7 +105,7 @@ def main():
             refs = pdf.get_references()
             print("\n%s References:" % len(refs))
         for ref in refs:
-            print("- %s" % ref.ref)
+            print("- %s" % ref)
 
     exit(1)
     try:

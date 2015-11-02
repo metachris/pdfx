@@ -169,10 +169,17 @@ class PDFMinerBackend(ReaderBackend):
         for ref in extractor.extract_doi(self.text):
             self.references.add(Reference(ref, "doi"))
 
-        # TODO: Search for ArXiv References
 
 class TextBackend(ReaderBackend):
     def __init__(self, stream):
         self.text = stream.read()
+
+        # Extract URL references from text
         for url in extractor.extract_urls(self.text):
-            self.references.add(Reference.from_url(url))
+            self.references.add(Reference(url))
+
+        for ref in extractor.extract_arxiv(self.text):
+            self.references.add(Reference(ref, "arxiv"))
+
+        for ref in extractor.extract_doi(self.text):
+            self.references.add(Reference(ref, "doi"))

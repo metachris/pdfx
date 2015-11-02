@@ -42,7 +42,7 @@ from . import utils
 import decimal
 import codecs
 import sys
-#import debugging
+# import debugging
 
 ObjectPrefix = b_('/<[tf(n%')
 NumberSigns = b_('+-')
@@ -90,7 +90,7 @@ def readObject(stream, pdf):
             return NumberObject.readFromStream(stream)
         peek = stream.read(20)
         stream.seek(-len(peek), 1)  # reset to start
-        if IndirectPattern.match(peek) != None:
+        if IndirectPattern.match(peek) is not None:
             return IndirectObject.readFromStream(stream, pdf)
         else:
             return NumberObject.readFromStream(stream)
@@ -182,7 +182,7 @@ class IndirectObject(PdfObject):
         return "IndirectObject(%r, %r)" % (self.idnum, self.generation)
 
     def __eq__(self, other):
-        return (other != None and isinstance(other, IndirectObject) and
+        return (other is not None and isinstance(other, IndirectObject) and
                 self.idnum == other.idnum and
                 self.generation == other.generation and self.pdf is other.pdf)
 
@@ -378,7 +378,7 @@ def readStringFromStream(stream):
                 # break occurs.  If it's a multi-char EOL, consume the
                 # second character:
                 tok = stream.read(1)
-                if not tok in b_("\n\r"):
+                if tok not in b_("\n\r"):
                     stream.seek(-1, 1)
                 # Then don't add anything to the actual string, since this
                 # line break was escaped:
@@ -525,7 +525,7 @@ class DictionaryObject(dict, PdfObject):
     # return None if no metadata was found on the document root.
     def getXmpMetadata(self):
         metadata = self.get("/Metadata", None)
-        if metadata == None:
+        if metadata is None:
             return None
         metadata = metadata.getObject()
         from . import xmp
@@ -583,11 +583,13 @@ class DictionaryObject(dict, PdfObject):
                 data[key] = value
             elif pdf.strict:
                 # multiple definitions of key not permitted
-                raise utils.PdfReadError("Multiple definitions in dictionary at byte %s for key %s" \
-                                           % (utils.hexStr(stream.tell()), key))
+                raise utils.PdfReadError(
+                    "Multiple definitions in dictionary at byte %s for key %s"
+                    % (utils.hexStr(stream.tell()), key))
             else:
-                warnings.warn("Multiple definitions in dictionary at byte %s for key %s" \
-                                           % (utils.hexStr(stream.tell()), key), utils.PdfReadWarning)
+                warnings.warn(
+                    "Multiple definitions in dictionary at byte %s for key %s"
+                    % (utils.hexStr(stream.tell()), key), utils.PdfReadWarning)
 
         pos = stream.tell()
         s = readNonWhitespace(stream)
@@ -612,7 +614,7 @@ class DictionaryObject(dict, PdfObject):
                 stream.seek(t, 0)
             data["__streamdata__"] = stream.read(length)
             if debug: print("here")
-            #if debug: print(binascii.hexlify(data["__streamdata__"]))
+            # if debug: print(binascii.hexlify(data["__streamdata__"]))
             e = readNonWhitespace(stream)
             ndstream = stream.read(8)
             if (e + ndstream) != b_("endstream"):
@@ -708,9 +710,9 @@ class TreeObject(DictionaryObject):
         cur = curRef.getObject()
         lastRef = self[NameObject('/Last')]
         last = lastRef.getObject()
-        while cur != None:
+        while cur is not None:
             if cur == childObj:
-                if prev == None:
+                if prev is None:
                     if NameObject('/Next') in cur:
                         # Removing first tree node
                         nextRef = cur[NameObject('/Next')]
@@ -850,7 +852,7 @@ class EncodedStreamObject(StreamObject):
 
             decoded._data = filters.decodeStreamData(self)
             for key, value in list(self.items()):
-                if not key in ("/Length", "/Filter", "/DecodeParms"):
+                if key not in ("/Length", "/Filter", "/DecodeParms"):
                     decoded[key] = value
             self.decodedSelf = decoded
             return decoded._data

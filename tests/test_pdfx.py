@@ -18,7 +18,6 @@ def test_all():
         pdfx.PDFx(os.path.join(curdir, "pdfs/invalid.pdf"))
 
     pdf = pdfx.PDFx(os.path.join(curdir, "pdfs/valid.pdf"))
-    pdf.analyze_text()
-    urls = pdf.get_urls(pdf_only=True)
-    assert len(urls) == 17
+    urls = pdf.get_references(reftype="pdf")
+    assert len(urls) == 18
     # pdf.download_pdfs("/tmp/")

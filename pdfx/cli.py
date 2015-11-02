@@ -59,6 +59,10 @@ def create_parser():
                         action='store_true',
                         help="Output debug infos")
 
+    parser.add_argument("-t", "--text",
+                        action='store_true',
+                        help="Only output text")
+
     parser.add_argument("--version",
                         action="version",
                         version="%(prog)s v{version} py{runtime}".format(
@@ -82,6 +86,10 @@ def main():
         exit_with_error(ERROR_DOWNLOAD, str(e))
     except pdfx.exceptions.PDFInvalidError as e:
         exit_with_error(ERROR_PDF_INVALID, str(e))
+
+    if args.text:
+        print(pdf.get_text())
+        return
 
     # Print Metadata
     if not args.json:

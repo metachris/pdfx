@@ -58,7 +58,7 @@ else:
     from urllib.request import Request, urlopen
     unicode = str
 
-from .libs import urlmarker
+from .extractor import extract_urls
 from .backends import PDFMinerBackend, TextBackend
 from .threadeddownload import ThreadedDownloader
 from .exceptions import (FileNotFoundError, DownloadError, PDFInvalidError,
@@ -74,14 +74,13 @@ class PDFx(object):
 
     General flow:
     * init -> get_metadata()
-    * analyze_text() -> get_urls()
 
     In detail:
     >>> import pdfx
     >>> pdf = pdfx.PDFx("filename-or-url.pdf")
     >>> print(pdf.get_metadata())
-    >>> pdf.analyze_text()
-    >>> print(pdf.get_urls())
+    >>> print(pdf.get_tet())
+    >>> print(pdf.get_references())
     >>> pdf.download_pdfs("target-directory")
     """
     # Available after init
@@ -104,7 +103,7 @@ class PDFx(object):
         self.uri = uri
 
         # Find out whether pdf is an URL or local file
-        url = re.findall(urlmarker.URL_REGEX, uri, re.IGNORECASE)
+        url = extract_urls(uri)
         self.is_url = len(url)
 
         # Grab content of reference

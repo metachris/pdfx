@@ -8,6 +8,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import sys
 import re
+import logging
 from io import BytesIO, StringIO
 from collections import namedtuple
 
@@ -15,7 +16,8 @@ from collections import namedtuple
 import chardet
 
 # Find URLs in text via regex
-from .libs import urlmarker
+from . import extractor
+from .libs.xmp import xmp_to_dict
 
 # Setting `psparser.STRICT` is the first thing to do because it is
 # referenced in the other pdfparser modules
@@ -26,10 +28,14 @@ from pdfminer.pdfparser import PDFParser
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.pdfdevice import PDFDevice, TagExtractor
 from pdfminer.pdfpage import PDFPage
+from pdfminer.pdftypes import resolve1
 from pdfminer.converter import XMLConverter, HTMLConverter, TextConverter
 from pdfminer.cmapdb import CMapDB
 from pdfminer.layout import LAParams
 from pdfminer.image import ImageWriter
+
+
+logger = logging.getLogger(__name__)
 
 
 IS_PY2 = sys.version_info < (3, 0)
@@ -57,8 +63,9 @@ class Reference(object):
     ref = ""
     reftype = "url"
 
-    def __init__(self, uri):
+    def __init__(self, uri, reftype="url"):
         self.ref = uri
+        self.reftype = reftype
         if uri.lower().endswith(".pdf"):
             self.reftype = "pdf"
 
@@ -70,7 +77,8 @@ class Reference(object):
         return self.ref == other.ref
 
     def __str__(self):
-        return "<%s:%s>" % (self.reftype, self.ref)
+        return "<%s: %s>" % (self.reftype, self.ref)
+
 
 class ReaderBackend(object):
     """
@@ -111,6 +119,14 @@ class PDFMinerBackend(ReaderBackend):
                 elif isinstance(v, (psparser.PSLiteral, psparser.PSKeyword)):
                     self.metadata[k] = v.name
 
+        # Secret Metadata
+        if 'Metadata' in doc.catalog:
+            metadata = resolve1(doc.catalog['Metadata']).get_data()
+            # print(metadata)  # The raw XMP metadata
+            # print(xmp_to_dict(metadata))
+            self.metadata.update(xmp_to_dict(metadata))
+            # print("---")
+
         # Extract Content
         text_io = BytesIO()
         rsrcmgr = PDFResourceManager(caching=True)
@@ -121,18 +137,21 @@ class PDFMinerBackend(ReaderBackend):
         self.metadata["Pages"] = 0
         for page in PDFPage.get_pages(self.pdf_stream, pagenos=pagenos,
                                       maxpages=maxpages, password=password,
-                                      caching=True, check_extractable=True):
+                                      caching=True, check_extractable=False):
             # Read page contents
             interpreter.process_page(page)
             self.metadata["Pages"] += 1
 
             # Collect URL annotations
-            if page.annots:
-                for annot in page.annots:
-                    a = annot.resolve()
-                    if "A" in a and "URI" in a["A"]:
-                        ref = Reference(a["A"]["URI"].decode("utf-8"))
-                        self.references.add(ref)
+            try:
+                if page.annots and isinstance(page.annots, list):
+                    for annot in page.annots:
+                        a = annot.resolve()
+                        if "A" in a and "URI" in a["A"]:
+                            ref = Reference(a["A"]["URI"].decode("utf-8"))
+                            self.references.add(ref)
+            except Exception as e:
+                logger.warning(str(e))
 
         # Get text from stream
         self.text = text_io.getvalue().decode("utf-8")
@@ -141,13 +160,19 @@ class PDFMinerBackend(ReaderBackend):
         # print(self.text)
 
         # Extract URL references from text
-        for url in urlmarker.get_urls(self.text):
+        for url in extractor.extract_urls(self.text):
             self.references.add(Reference(url))
+
+        for ref in extractor.extract_arxiv(self.text):
+            self.references.add(Reference(ref, "arxiv"))
+
+        for ref in extractor.extract_doi(self.text):
+            self.references.add(Reference(ref, "doi"))
 
         # TODO: Search for ArXiv References
 
 class TextBackend(ReaderBackend):
     def __init__(self, stream):
         self.text = stream.read()
-        for url in urlmarker.get_urls(self.text):
+        for url in extractor.extract_urls(self.text):
             self.references.add(Reference.from_url(url))

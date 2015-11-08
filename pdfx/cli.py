@@ -35,7 +35,7 @@ ERROR_COULD_NOT_EXTRACT_PDF = 5
 
 def create_parser():
     parser = argparse.ArgumentParser(
-        description="Get infos and links from a PDF, and optionally"
+        description="Get infos and links from a PDF, and optionally "
         "download all referenced PDFs.\nSee "
         "http://www.metachris.com/pdfx for more information.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -65,8 +65,8 @@ def create_parser():
 
     parser.add_argument("--version",
                         action="version",
-                        version="%(prog)s v{version} py{runtime}".format(
-                            version=pdfx.__version__, runtime=sys.version_info.major))
+                        version="%(prog)s v{version}".format(
+                            version=pdfx.__version__))
     return parser
 
 
@@ -97,13 +97,6 @@ def main():
         for k, v in sorted(pdf.get_metadata().items()):
             if v:
                 print("- %s = %s" % (k, parse_str(v).strip("/")))
-    #
-    # # Analyze PDF Text
-    # try:
-    #     pdf.analyze_text()
-    # except pdfx.exceptions.PDFExtractionError as e:
-    #     raise
-    #     exit_with_error(ERROR_COULD_NOT_EXTRACT_PDF, str(e))
 
     if not args.json:
         if args.verbose == 0:
@@ -115,7 +108,6 @@ def main():
         for ref in refs:
             print("- %s" % ref)
 
-    exit(1)
     try:
         if args.download_pdfs:
             if not args.json:

@@ -51,9 +51,10 @@ Grab a copy of the code with ``easy_install`` or ``pip``, and run it::
 Run ``pdfx -h`` to see the help output::
 
     $ pdfx -h
-    usage: pdfx [-h] [-d OUTPUT_DIRECTORY] [-j] [-v] [--debug] [--version] pdf
+    usage: cli.py [-h] [-d OUTPUT_DIRECTORY] [-j] [-v] [--debug] [-t] [--version]
+                  pdf
 
-    Get infos and links from a PDF, and optionallydownload all referenced PDFs.
+    Get infos and links from a PDF, and optionally download all referenced PDFs.
     See http://www.metachris.com/pdfx for more information.
 
     positional arguments:
@@ -63,9 +64,10 @@ Run ``pdfx -h`` to see the help output::
       -h, --help            show this help message and exit
       -d OUTPUT_DIRECTORY, --download-pdfs OUTPUT_DIRECTORY
                             Download all referenced PDFs into specified directory
-      -j, --json            Output infos as json (instead of plain text)
+      -j, --json            Output infos as JSON (instead of plain text)
       -v, --verbose         Print all urls (instead of only PDF urls)
       --debug               Output debug infos
+      -t, --text            Only output text
       --version             show program's version number and exit
 
 

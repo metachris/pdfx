@@ -7,10 +7,8 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import sys
-import re
 import logging
-from io import BytesIO, StringIO
-from collections import namedtuple
+from io import BytesIO
 
 # Character Detection Helper
 import chardet
@@ -26,13 +24,10 @@ psparser.STRICT = False
 from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdfparser import PDFParser
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
-from pdfminer.pdfdevice import PDFDevice, TagExtractor
 from pdfminer.pdfpage import PDFPage
 from pdfminer.pdftypes import resolve1
-from pdfminer.converter import XMLConverter, HTMLConverter, TextConverter
-from pdfminer.cmapdb import CMapDB
+from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
-from pdfminer.image import ImageWriter
 
 
 logger = logging.getLogger(__name__)
@@ -131,7 +126,7 @@ class PDFMinerBackend(ReaderBackend):
         text_io = BytesIO()
         rsrcmgr = PDFResourceManager(caching=True)
         converter = TextConverter(rsrcmgr, text_io, codec="utf-8",
-                laparams=LAParams(), imagewriter=None)
+                                  laparams=LAParams(), imagewriter=None)
         interpreter = PDFPageInterpreter(rsrcmgr, converter)
 
         self.metadata["Pages"] = 0

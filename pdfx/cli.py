@@ -65,8 +65,8 @@ def create_parser():
 
     parser.add_argument("--version",
                         action="version",
-                        version="%(prog)s v{version} py{runtime}".format(
-                            version=pdfx.__version__, runtime=sys.version_info.major))
+                        version="%(prog)s v{version}".format(
+                            version=pdfx.__version__))
     return parser
 
 

@@ -34,7 +34,6 @@ from __future__ import (absolute_import, division,
                         print_function, unicode_literals)
 
 import os
-import re
 import sys
 import json
 import shutil
@@ -61,8 +60,7 @@ else:
 from .extractor import extract_urls
 from .backends import PDFMinerBackend, TextBackend
 from .threadeddownload import ThreadedDownloader
-from .exceptions import (FileNotFoundError, DownloadError, PDFInvalidError,
-                         PDFExtractionError)
+from .exceptions import FileNotFoundError, DownloadError, PDFInvalidError
 from pdfminer.pdfparser import PDFSyntaxError
 
 logger = logging.getLogger(__name__)

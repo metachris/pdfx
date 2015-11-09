@@ -35,33 +35,37 @@ ERROR_COULD_NOT_EXTRACT_PDF = 5
 
 def create_parser():
     parser = argparse.ArgumentParser(
-        description="Get infos and links from a PDF, and optionally "
-        "download all referenced PDFs.\nSee "
+        description="Extract metadata and references from a PDF, and "
+        "optionally download all referenced PDFs. Visit "
         "http://www.metachris.com/pdfx for more information.",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="")
+
     parser.add_argument("pdf", help="Filename or URL of a PDF file")
+
     parser.add_argument(
         "-d",
         "--download-pdfs",
         metavar="OUTPUT_DIRECTORY",
         help="Download all referenced PDFs into specified directory")
+
     parser.add_argument("-j",
                         "--json",
                         action='store_true',
                         help="Output infos as json (instead of plain text)")
+
     parser.add_argument("-v",
                         "--verbose",
                         action="count",
                         default=0,
                         help="Print all urls (instead of only PDF urls)")
-    parser.add_argument("--debug",
-                        action='store_true',
-                        help="Output debug infos")
+
+    # parser.add_argument("--debug",
+    #                     action='store_true',
+    #                     help="Output debug infos")
 
     parser.add_argument("-t", "--text",
                         action='store_true',
-                        help="Only output text")
+                        help="Only output text (no metadata or references)")
 
     parser.add_argument("--version",
                         action="version",
@@ -69,6 +73,33 @@ def create_parser():
                             version=pdfx.__version__))
     return parser
 
+
+def output_normal(pdf, args):
+    """ Normal output of infos of PDFx instance """
+    # Metadata
+    print("Document infos:")
+    for k, v in sorted(pdf.get_metadata().items()):
+        if v:
+            print("- %s = %s" % (k, parse_str(v).strip("/")))
+
+    # References
+    ref_cnt = pdf.get_references_count()
+    print("\nReferences: %s" % ref_cnt)
+    refs = pdf.get_references_as_dict()
+    for k in refs:
+        print("- %s: %s" % (k.upper(), len(refs[k])))
+
+    if args.verbose == 0:
+        if "pdf" in refs:
+            print("\nPDF References:")
+            for ref in refs["pdf"]:
+                print("- %s" % ref)
+    else:
+        if ref_cnt:
+            for reftype in refs:
+                print("\n%s References:" % reftype.upper())
+                for ref in refs[reftype]:
+                    print("- %s" % ref)
 
 def main():
     parser = create_parser()
@@ -87,40 +118,27 @@ def main():
     except pdfx.exceptions.PDFInvalidError as e:
         exit_with_error(ERROR_PDF_INVALID, str(e))
 
+    # Perhaps only output text
     if args.text:
         print(pdf.get_text())
         return
 
     # Print Metadata
-    if not args.json:
-        print("Document infos:")
-        for k, v in sorted(pdf.get_metadata().items()):
-            if v:
-                print("- %s = %s" % (k, parse_str(v).strip("/")))
-
-    if not args.json:
-        if args.verbose == 0:
-            refs = pdf.get_references(reftype="pdf")
-            print("\n%s PDF References:" % len(refs))
-        else:
-            refs = pdf.get_references()
-            print("\n%s References:" % len(refs))
-        for ref in refs:
-            print("- %s" % ref)
-
-    try:
-        if args.download_pdfs:
-            if not args.json:
-                print("\nDownloading %s pdfs to '%s'..." %
-                      (len(pdf.urls_pdf), args.download_pdfs))
-            pdf.download_pdfs(args.download_pdfs)
-            print("All done!")
-    except Exception as e:
-        raise
-        exit_with_error(ERROR_DOWNLOAD, str(e))
-
     if args.json:
         print(json.dumps(pdf.summary, indent=2))
+    else:
+        output_normal(pdf, args)
+
+    # try:
+    #     if args.download_pdfs:
+    #         if not args.json:
+    #             print("\nDownloading %s pdfs to '%s'..." %
+    #                   (len(pdf.urls_pdf), args.download_pdfs))
+    #         pdf.download_pdfs(args.download_pdfs)
+    #         print("All done!")
+    # except Exception as e:
+    #     raise
+    #     exit_with_error(ERROR_DOWNLOAD, str(e))
 
 
 if __name__ == "__main__":

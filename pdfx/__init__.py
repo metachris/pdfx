@@ -40,7 +40,7 @@ import shutil
 import logging
 
 __title__ = 'pdfx'
-__version__ = '1.0.5'
+__version__ = '1.1.0'
 __author__ = 'Chris Hager'
 __license__ = 'GPLv3'
 __copyright__ = 'Copyright 2015 Chris Hager'
@@ -140,20 +140,16 @@ class PDFx(object):
 
         # Save metadata to user-supplied directory
         self.summary = {
-            "source": "url" if self.is_url else "file",
-            "filename": self.fn,
-            "location": self.uri,
+            "source": {
+                "type": "url" if self.is_url else "file",
+                "location": self.uri,
+                "filename": self.fn
+            },
             "metadata": self.reader.get_metadata(),
         }
 
-        # print()
-        # print("urls-text:", self.pdf.get_urls_text())
-        # print("urls-annotations:", self.pdf.get_urls_annotations())
-        # print()
-        # print("urls:", self.pdf.get_urls())
-
         # Search for URLs
-        # self.summary["urls"] = self.reader.get_urls()
+        self.summary["references"] = self.reader.get_references_as_dict()
         # print(self.summary)
 
     def get_text(self):
@@ -165,6 +161,15 @@ class PDFx(object):
     def get_references(self, reftype=None, sort=False):
         """ reftype can be `None` for all, `pdf`, etc. """
         return self.reader.get_references(reftype=reftype, sort=sort)
+
+    def get_references_as_dict(self, reftype=None, sort=False):
+        """ reftype can be `None` for all, `pdf`, etc. """
+        return self.reader.get_references_as_dict(reftype=reftype, sort=sort)
+
+    def get_references_count(self, reftype=None):
+        """ reftype can be `None` for all, `pdf`, etc. """
+        r = self.reader.get_references(reftype=reftype)
+        return len(r)
 
     def download_pdfs(self, target_dir):
         logger.debug("Download pdfs to %s" % target_dir)

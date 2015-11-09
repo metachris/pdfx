@@ -58,11 +58,27 @@ class Reference(object):
     ref = ""
     reftype = "url"
 
-    def __init__(self, uri, reftype="url"):
+    def __init__(self, uri):
         self.ref = uri
-        self.reftype = reftype
+        self.reftype = "url"
+
+        # Detect reftype by filetype
         if uri.lower().endswith(".pdf"):
             self.reftype = "pdf"
+            return
+
+        # Detect reftype by extractor
+        arxiv = extractor.extract_arxiv(uri)
+        if arxiv:
+            self.ref = arxiv.pop()
+            self.reftype = "arxiv"
+            return
+
+        doi = extractor.extract_doi(uri)
+        if doi:
+            self.ref = doi.pop()
+            self.reftype = "doi"
+            return
 
     def __hash__(self):
         return hash(self.ref)
@@ -88,6 +104,12 @@ class ReaderBackend(object):
     def get_metadata(self):
         return self.metadata
 
+    def metadata_cleanup(self):
+        """ Delete all metadata fields without values """
+        for k, v in self.metadata.items():
+            if v == "":
+                del self.metadata[k]
+
     def get_text(self):
         return self.text
 
@@ -96,6 +118,18 @@ class ReaderBackend(object):
         if reftype:
             refs = set([ref for ref in refs if ref.reftype == "pdf"])
         return sorted(refs) if sort else refs
+
+    def get_references_as_dict(self, reftype=None, sort=False):
+        ret = {}
+        refs = self.references
+        if reftype:
+            refs = set([ref for ref in refs if ref.reftype == "pdf"])
+        for r in sorted(refs) if sort else refs:
+            if r.reftype in ret:
+                ret[r.reftype].append(r.ref)
+            else:
+                ret[r.reftype] = [r.ref]
+        return ret
 
 
 class PDFMinerBackend(ReaderBackend):
@@ -148,6 +182,9 @@ class PDFMinerBackend(ReaderBackend):
             except Exception as e:
                 logger.warning(str(e))
 
+        # Remove empty metadata entries
+        self.metadata_cleanup()
+
         # Get text from stream
         self.text = text_io.getvalue().decode("utf-8")
         text_io.close()
@@ -159,10 +196,10 @@ class PDFMinerBackend(ReaderBackend):
             self.references.add(Reference(url))
 
         for ref in extractor.extract_arxiv(self.text):
-            self.references.add(Reference(ref, "arxiv"))
+            self.references.add(Reference(ref))
 
         for ref in extractor.extract_doi(self.text):
-            self.references.add(Reference(ref, "doi"))
+            self.references.add(Reference(ref))
 
 
 class TextBackend(ReaderBackend):
@@ -174,7 +211,7 @@ class TextBackend(ReaderBackend):
             self.references.add(Reference(url))
 
         for ref in extractor.extract_arxiv(self.text):
-            self.references.add(Reference(ref, "arxiv"))
+            self.references.add(Reference(ref))
 
         for ref in extractor.extract_doi(self.text):
-            self.references.add(Reference(ref, "doi"))
+            self.references.add(Reference(ref))

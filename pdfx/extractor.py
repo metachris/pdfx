@@ -7,6 +7,9 @@ Web url matching:
 * http://daringfireball.net/2010/07/improved_regex_for_matching_urls
 * https://gist.github.com/gruber/8891611
 """
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+
 import re
 
 # arXiv.org
@@ -36,4 +39,4 @@ def extract_doi(text):
 
 
 if __name__ == "__main__":
-    print extract_arxiv("arxiv:123 ... arxiv: 345 455 http://arxiv.org/abs/876-098")
+    print(extract_arxiv("arxiv:123 . arxiv: 345 455 http://arxiv.org/abs/876"))

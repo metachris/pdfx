@@ -8,7 +8,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import sys
-import logging
+# import logging
 import argparse
 import json
 
@@ -101,13 +101,15 @@ def output_normal(pdf, args):
                 for ref in refs[reftype]:
                     print("- %s" % ref)
 
+
 def main():
     parser = create_parser()
     args = parser.parse_args()
 
-    if args.debug:
-        logging.basicConfig(level=logging.DEBUG,
-                            format='%(levelname)s - %(module)s - %(message)s')
+    # if args.debug:
+    #     logging.basicConfig(
+    #             level=logging.DEBUG,
+    #             format='%(levelname)s - %(module)s - %(message)s')
 
     try:
         pdf = pdfx.PDFx(args.pdf)

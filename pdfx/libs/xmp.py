@@ -16,17 +16,18 @@ from xml.etree import ElementTree as ET
 RDF_NS = '{http://www.w3.org/1999/02/22-rdf-syntax-ns#}'
 XML_NS = '{http://www.w3.org/XML/1998/namespace}'
 NS_MAP = {
-    'http://www.w3.org/1999/02/22-rdf-syntax-ns#'    : 'rdf',
-    'http://purl.org/dc/elements/1.1/'               : 'dc',
-    'http://ns.adobe.com/xap/1.0/'                   : 'xap',
-    'http://ns.adobe.com/pdf/1.3/'                   : 'pdf',
-    'http://ns.adobe.com/xap/1.0/mm/'                : 'xapmm',
-    'http://ns.adobe.com/pdfx/1.3/'                  : 'pdfx',
-    'http://prismstandard.org/namespaces/basic/2.0/' : 'prism',
-    'http://crossref.org/crossmark/1.0/'             : 'crossmark',
-    'http://ns.adobe.com/xap/1.0/rights/'            : 'rights',
-    'http://www.w3.org/XML/1998/namespace'           : 'xml'
+    'http://www.w3.org/1999/02/22-rdf-syntax-ns#': 'rdf',
+    'http://purl.org/dc/elements/1.1/': 'dc',
+    'http://ns.adobe.com/xap/1.0/': 'xap',
+    'http://ns.adobe.com/pdf/1.3/': 'pdf',
+    'http://ns.adobe.com/xap/1.0/mm/': 'xapmm',
+    'http://ns.adobe.com/pdfx/1.3/': 'pdfx',
+    'http://prismstandard.org/namespaces/basic/2.0/': 'prism',
+    'http://crossref.org/crossmark/1.0/': 'crossmark',
+    'http://ns.adobe.com/xap/1.0/rights/': 'rights',
+    'http://www.w3.org/XML/1998/namespace': 'xml'
 }
+
 
 class XmpParser(object):
     """
@@ -48,7 +49,7 @@ class XmpParser(object):
         meta = defaultdict(dict)
         for desc in self.rdftree.findall(RDF_NS+'Description'):
             for el in desc.getchildren():
-                ns, tag =  self._parse_tag(el)
+                ns, tag = self._parse_tag(el)
                 value = self._parse_value(el)
                 meta[ns][tag] = value
         return dict(meta)
@@ -58,7 +59,7 @@ class XmpParser(object):
         ns = None
         tag = el.tag
         if tag[0] == "{":
-            ns, tag = tag[1:].split('}',1)
+            ns, tag = tag[1:].split('}', 1)
             if ns in NS_MAP:
                 ns = NS_MAP[ns]
         return ns, tag
@@ -81,6 +82,8 @@ class XmpParser(object):
             value = el.text
         return value
 
+
 def xmp_to_dict(xmp):
-    """ Shorthand function for parsing an XMP string into a python dictionary. """
+    """ Shorthand function for parsing an XMP string into a python
+    dictionary. """
     return XmpParser(xmp).meta

@@ -40,7 +40,7 @@ import shutil
 import logging
 
 __title__ = 'pdfx'
-__version__ = '1.1.0'
+__version__ = '1.1.1'
 __author__ = 'Chris Hager'
 __license__ = 'GPLv3'
 __copyright__ = 'Copyright 2015 Chris Hager'

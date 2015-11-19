@@ -40,12 +40,29 @@ if not IS_PY2:
 
 
 def make_compat_str(in_str):
-    """ Tries to guess encoding and return a standard unicode string """
+    """
+    Tries to guess encoding of [str/bytes] and
+    return a standard unicode string
+    """
     assert isinstance(in_str, (bytes, str, unicode))
     if not in_str:
+        return unicode()
+
+    # Chardet in Py2 works on str + bytes objects
+    if IS_PY2 and isinstance(in_str, unicode):
         return in_str
+
+    # Chardet in Py3 works on bytes objects
+    if not IS_PY2 and not isinstance(in_str, bytes):
+        return in_str
+
+    # Detect the encoding now
     enc = chardet.detect(in_str)
+
+    # Decode the object into a unicode object
     out_str = in_str.decode(enc['encoding'])
+
+    # Cleanup
     if enc['encoding'] == "UTF-16BE":
         # Remove byte order marks (BOM)
         if out_str.startswith('\ufeff'):
@@ -146,7 +163,7 @@ class PDFMinerBackend(ReaderBackend):
                 if isinstance(v, (bytes, str, unicode)):
                     self.metadata[k] = make_compat_str(v)
                 elif isinstance(v, (psparser.PSLiteral, psparser.PSKeyword)):
-                    self.metadata[k] = v.name
+                    self.metadata[k] = make_compat_str(v.name)
 
         # Secret Metadata
         if 'Metadata' in doc.catalog:

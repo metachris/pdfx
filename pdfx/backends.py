@@ -123,8 +123,8 @@ class ReaderBackend(object):
 
     def metadata_cleanup(self):
         """ Delete all metadata fields without values """
-        for k, v in self.metadata.items():
-            if v == "":
+        for k in list(self.metadata.keys()):
+            if self.metadata[k] == "":
                 del self.metadata[k]
 
     def get_text(self):

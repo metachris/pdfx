@@ -38,7 +38,7 @@ def create_parser():
     parser = argparse.ArgumentParser(
         description="Extract metadata and references from a PDF, and "
         "optionally download all referenced PDFs. Visit "
-        "http://www.metachris.com/pdfx for more information.",
+        "https://www.metachris.com/pdfx for more information.",
         epilog="")
 
     parser.add_argument("pdf", help="Filename or URL of a PDF file")
@@ -52,13 +52,13 @@ def create_parser():
     parser.add_argument("-j",
                         "--json",
                         action='store_true',
-                        help="Output infos as json (instead of plain text)")
+                        help="Output infos as JSON (instead of plain text)")
 
     parser.add_argument("-v",
                         "--verbose",
                         action="count",
                         default=0,
-                        help="Print all urls (instead of only PDF urls)")
+                        help="Print all references (instead of only PDFs)")
 
     # parser.add_argument("--debug",
     #                     action='store_true',

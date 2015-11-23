@@ -14,18 +14,18 @@ PDFx
 Introduction
 ============
 
-Extract metadata and links from a local or remote PDF, and optionally download all referenced PDFs.
+Extract metadata and references from a local or remote PDF, and optionally download all referenced PDFs.
 
 **Features**
 
 * Extract metadata and references from a given PDF
-* Works with local and online pdfs
 * Detects pdf, url, arxiv and doi references
 * **Fast, parallel download of all referenced PDFs**
 * Output as text or JSON (using the ``-j`` flag)
 * Extract the PDF text (using the ``--text`` flag)
 * Use as command-line tool or Python package
 * Compatible with Python 2 and 3
+* Works with local and online pdfs
 
 
 Getting Started
@@ -40,11 +40,12 @@ Grab a copy of the code with ``easy_install`` or ``pip``, and run it::
 Run ``pdfx -h`` to see the help output::
 
     $ pdfx -h
-    usage: cli.py [-h] [-d OUTPUT_DIRECTORY] [-j] [-v] [--debug] [-t] [--version]
-                  pdf
+    usage: pdfx [-h] [-d OUTPUT_DIRECTORY] [-j] [-v] [-t] [-o OUTPUT_FILE]
+                [--version]
+                pdf
 
-    Get infos and links from a PDF, and optionally download all referenced PDFs.
-    See http://www.metachris.com/pdfx for more information.
+    Extract metadata and references from a PDF, and optionally download all
+    referenced PDFs. Visit https://www.metachris.com/pdfx for more information.
 
     positional arguments:
       pdf                   Filename or URL of a PDF file
@@ -54,9 +55,10 @@ Run ``pdfx -h`` to see the help output::
       -d OUTPUT_DIRECTORY, --download-pdfs OUTPUT_DIRECTORY
                             Download all referenced PDFs into specified directory
       -j, --json            Output infos as JSON (instead of plain text)
-      -v, --verbose         Print all urls (instead of only PDF urls)
-      --debug               Output debug infos
-      -t, --text            Only output text
+      -v, --verbose         Print all references (instead of only PDF)
+      -t, --text            Only extract text (no metadata or references)
+      -o OUTPUT_FILE, --output-file OUTPUT_FILE
+                            Output to specified file instead of console
       --version             show program's version number and exit
 
 
@@ -75,23 +77,33 @@ Lets take a look at this paper: https://weakdh.org/imperfect-forward-secrecy.pdf
     - Producer = pdfTeX-1.40.14
     - Title = Imperfect Forward Secrecy: How Diffie-Hellman Fails in Practice
     - Trapped = False
+    - dc = {'title': {'x-default': 'Imperfect Forward Secrecy: How Diffie-Hellman Fails in Practice'}, 'creator': [None], 'description': {'x-default': None}, 'format': 'application/pdf'}
+    - pdf = {'Keywords': None, 'Producer': 'pdfTeX-1.40.14', 'Trapped': 'False'}
+    - pdfx = {'PTEX.Fullbanner': 'This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) kpathsea version 6.1.1'}
+    - xap = {'CreateDate': '2015-08-21T11:06:23-04:00', 'ModifyDate': '2015-08-21T11:08:05-04:00', 'CreatorTool': 'LaTeX with hyperref package', 'MetadataDate': '2015-08-21T11:08:05-04:00'}
+    - xapmm = {'InstanceID': 'uuid:4e570f88-cd0f-4488-85ad-03f4435a4048', 'DocumentID': 'uuid:98988d37-b43d-4c1a-965b-988dfb2944b6'}
 
-    17 PDF URLs:
-    - http://cr.yp.to/factorization/smoothparts-20040510.pdf
-    - http://www.spiegel.de/media/media-35671.pdf
-    - http://www.spiegel.de/media/media-35529.pdf
-    - http://cryptome.org/2013/08/spy-budget-fy13.pdf
-    - http://www.spiegel.de/media/media-35514.pdf
-    - http://www.spiegel.de/media/media-35509.pdf
-    - http://www.spiegel.de/media/media-35515.pdf
+    References: 36
+    - URL: 18
+    - PDF: 18
+
+    PDF References:
     - http://www.spiegel.de/media/media-35533.pdf
+    - http://www.spiegel.de/media/media-35513.pdf
+    - http://www.spiegel.de/media/media-35509.pdf
+    - http://www.spiegel.de/media/media-35529.pdf
+    - http://www.spiegel.de/media/media-35527.pdf
+    - http://cr.yp.to/factorization/smoothparts-20040510.pdf
+    - http://www.spiegel.de/media/media-35517.pdf
+    - http://www.spiegel.de/media/media-35526.pdf
     - http://www.spiegel.de/media/media-35519.pdf
     - http://www.spiegel.de/media/media-35522.pdf
-    - http://www.spiegel.de/media/media-35513.pdf
+    - http://cryptome.org/2013/08/spy-budget-fy13.pdf
+    - http://www.spiegel.de/media/media-35515.pdf
+    - http://www.spiegel.de/media/media-35514.pdf
+    - http://www.hyperelliptic.org/tanja/SHARCS/talks06/thorsten.pdf
     - http://www.spiegel.de/media/media-35528.pdf
-    - http://www.spiegel.de/media/media-35526.pdf
-    - http://www.spiegel.de/media/media-35517.pdf
-    - http://www.spiegel.de/media/media-35527.pdf
+    - http://www.spiegel.de/media/media-35671.pdf
     - http://www.spiegel.de/media/media-35520.pdf
     - http://www.spiegel.de/media/media-35551.pdf
 
@@ -99,37 +111,8 @@ Lets take a look at this paper: https://weakdh.org/imperfect-forward-secrecy.pdf
 Download all referenced pdfs with **``-d``** (for ``download-pdfs``) to the specified directory (eg. ``./``)::
 
     $ pdfx https://weakdh.org/imperfect-forward-secrecy.pdf -d ./
-    Document infos:
-    - CreationDate = D:20150821110623-04'00'
-    - Creator = LaTeX with hyperref package
-    - ModDate = D:20150821110805-04'00'
-    - PTEX.Fullbanner = This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) kpathsea version 6.1.1
-    - Pages = 13
-    - Producer = pdfTeX-1.40.14
-    - Title = Imperfect Forward Secrecy: How Diffie-Hellman Fails in Practice
-    - Trapped = False
+    ...
 
-    17 PDF URLs:
-    - http://cr.yp.to/factorization/smoothparts-20040510.pdf
-    - http://www.spiegel.de/media/media-35671.pdf
-    - http://www.spiegel.de/media/media-35529.pdf
-    - http://cryptome.org/2013/08/spy-budget-fy13.pdf
-    - http://www.spiegel.de/media/media-35514.pdf
-    - http://www.spiegel.de/media/media-35509.pdf
-    - http://www.spiegel.de/media/media-35515.pdf
-    - http://www.spiegel.de/media/media-35533.pdf
-    - http://www.spiegel.de/media/media-35519.pdf
-    - http://www.spiegel.de/media/media-35522.pdf
-    - http://www.spiegel.de/media/media-35513.pdf
-    - http://www.spiegel.de/media/media-35528.pdf
-    - http://www.spiegel.de/media/media-35526.pdf
-    - http://www.spiegel.de/media/media-35517.pdf
-    - http://www.spiegel.de/media/media-35527.pdf
-    - http://www.spiegel.de/media/media-35520.pdf
-    - http://www.spiegel.de/media/media-35551.pdf
-
-    Downloading 17 pdfs to './'...
-    All done!
 
 Usage as Python library
 =======================
@@ -138,9 +121,9 @@ Usage as Python library
 
     >>> import pdfx
     >>> pdf = pdfx.PDFx("filename-or-url.pdf")
-    >>> print(pdf.get_metadata())
-    >>> pdf.analyze_text()
-    >>> print(pdf.get_urls())
+    >>> metadata = pdf.get_metadata()
+    >>> references_list = pdf.get_references()
+    >>> references_dict = pdf.get_references_as_dict()
     >>> pdf.download_pdfs("target-directory")
 
 

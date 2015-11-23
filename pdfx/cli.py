@@ -66,10 +66,10 @@ def create_parser():
 
     parser.add_argument("-t", "--text",
                         action='store_true',
-                        help="Only output text (no metadata or references)")
+                        help="Only extract text (no metadata or references)")
 
     parser.add_argument("-o", "--output-file",
-                        help="Output metadata to specified file")
+                        help="Output to specified file instead of console")
 
     parser.add_argument("--version",
                         action="version",
@@ -109,11 +109,11 @@ def get_text_output(pdf, args):
 
 
 def print_to_console(text):
-    enc = locale.getdefaultlocale()[1]
+    enc = locale.getdefaultlocale()[1] or "utf-8"
     try:
         print(text.encode(enc, errors="backslashreplace"))
-    except LookupError:
-        # Unknown encoding. Use ascii
+    except (LookupError, UnicodeEncodeError):
+        # Unknown encoding or encoding problem. Fallback to ascii
         print(text.encode("ascii", errors="backslashreplace"))
 
 
@@ -137,7 +137,14 @@ def main():
 
     # Perhaps only output text
     if args.text:
-        print_to_console(pdf.get_text())
+        text = pdf.get_text()
+        if args.output_file:
+            # to file (in utf-8)
+            with codecs.open(args.output_file, "w", "utf-8") as f:
+                f.write(text)
+        else:
+            # to console
+            print_to_console(text)
         return
 
     # Print Metadata

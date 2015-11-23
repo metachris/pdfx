@@ -18,11 +18,12 @@ Extract metadata and links from a local or remote PDF, and optionally download a
 
 **Features**
 
-* Extract metadata and PDF URLs from a given PDF
+* Extract metadata and references from a given PDF
 * Works with local and online pdfs
-* **Download all PDFs referenced in the original PDF**
-* Fast, parallel download of references
+* Detects pdf, url, arxiv and doi references
+* **Fast, parallel download of all referenced PDFs**
 * Output as text or JSON (using the ``-j`` flag)
+* Extract the PDF text (using the ``--text`` flag)
 * Use as command-line tool or Python package
 * Compatible with Python 2 and 3
 

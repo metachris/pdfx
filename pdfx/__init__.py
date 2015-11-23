@@ -20,9 +20,9 @@ PDFx can be used to extract infos from PDF in two ways:
 
 >>> import pdfx
 >>> pdf = pdfx.PDFx("filename-or-url.pdf")
->>> print(pdf.get_metadata())
->>> pdf.analyze_text()
->>> print(pdf.get_urls())
+>>> metadata = pdf.get_metadata()
+>>> references_list = pdf.get_references()
+>>> references_dict = pdf.get_references_as_dict()
 >>> pdf.download_pdfs("target-directory")
 
 https://www.metachris.com/pdfx
@@ -40,7 +40,7 @@ import shutil
 import logging
 
 __title__ = 'pdfx'
-__version__ = '1.1.1'
+__version__ = '1.1.2'
 __author__ = 'Chris Hager'
 __license__ = 'GPLv3'
 __copyright__ = 'Copyright 2015 Chris Hager'
@@ -194,7 +194,7 @@ class PDFx(object):
         logger.debug("- Saved metadata to '%s'" % fn_json)
 
         # Download references
-        urls = self.reader.get_urls(pdf_only=True)
+        urls = [ref.ref for ref in self.get_references("pdf")]
         if urls:
             dir_referenced_pdfs = os.path.join(
                 target_dir, "%s-referenced-pdfs" % self.fn)

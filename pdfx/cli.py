@@ -11,6 +11,8 @@ import sys
 # import logging
 import argparse
 import json
+import codecs
+import locale
 
 import pdfx
 
@@ -30,7 +32,6 @@ def exit_with_error(code, *objs):
 ERROR_FILE_NOT_FOUND = 1
 ERROR_DOWNLOAD = 2
 ERROR_PDF_INVALID = 4
-ERROR_COULD_NOT_EXTRACT_PDF = 5
 
 
 def create_parser():
@@ -67,6 +68,9 @@ def create_parser():
                         action='store_true',
                         help="Only output text (no metadata or references)")
 
+    parser.add_argument("-o", "--output-file",
+                        help="Output metadata to specified file")
+
     parser.add_argument("--version",
                         action="version",
                         version="%(prog)s v{version}".format(
@@ -74,32 +78,43 @@ def create_parser():
     return parser
 
 
-def output_normal(pdf, args):
+def get_text_output(pdf, args):
     """ Normal output of infos of PDFx instance """
     # Metadata
-    print("Document infos:")
+    ret = ""
+    ret += "Document infos:\n"
     for k, v in sorted(pdf.get_metadata().items()):
         if v:
-            print("- %s = %s" % (k, parse_str(v).strip("/")))
+            ret += "- %s = %s\n" % (k, parse_str(v).strip("/"))
 
     # References
     ref_cnt = pdf.get_references_count()
-    print("\nReferences: %s" % ref_cnt)
+    ret += "\nReferences: %s\n" % ref_cnt
     refs = pdf.get_references_as_dict()
     for k in refs:
-        print("- %s: %s" % (k.upper(), len(refs[k])))
+        ret += "- %s: %s\n" % (k.upper(), len(refs[k]))
 
     if args.verbose == 0:
         if "pdf" in refs:
-            print("\nPDF References:")
+            ret += "\nPDF References:\n"
             for ref in refs["pdf"]:
-                print("- %s" % ref)
+                ret += "- %s\n" % ref
     else:
         if ref_cnt:
             for reftype in refs:
-                print("\n%s References:" % reftype.upper())
+                ret += "\n%s References:\n" % reftype.upper()
                 for ref in refs[reftype]:
-                    print("- %s" % ref)
+                    ret += "- %s\n" % ref
+    return ret
+
+
+def print_to_console(text):
+    enc = locale.getdefaultlocale()[1]
+    try:
+        print(text.encode(enc, errors="backslashreplace"))
+    except LookupError:
+        # Unknown encoding. Use ascii
+        print(text.encode("ascii", errors="backslashreplace"))
 
 
 def main():
@@ -122,25 +137,39 @@ def main():
 
     # Perhaps only output text
     if args.text:
-        print(pdf.get_text())
+        print_to_console(pdf.get_text())
         return
 
     # Print Metadata
     if args.json:
-        print(json.dumps(pdf.summary, indent=2))
+        # in JSON format
+        text = json.dumps(pdf.summary, indent=4)
+        if args.output_file:
+            # to file (in utf-8)
+            with codecs.open(args.output_file, "w", "utf-8") as f:
+                f.write(text)
+        else:
+            # to console
+            print_to_console(text)
     else:
-        output_normal(pdf, args)
+        # in text format
+        text = get_text_output(pdf, args)
+        if args.output_file:
+            # to file (in utf-8)
+            with codecs.open(args.output_file, "w", "utf-8") as f:
+                f.write(text)
+        else:
+            # to console
+            print_to_console(text)
 
-    # try:
-    #     if args.download_pdfs:
-    #         if not args.json:
-    #             print("\nDownloading %s pdfs to '%s'..." %
-    #                   (len(pdf.urls_pdf), args.download_pdfs))
-    #         pdf.download_pdfs(args.download_pdfs)
-    #         print("All done!")
-    # except Exception as e:
-    #     raise
-    #     exit_with_error(ERROR_DOWNLOAD, str(e))
+    try:
+        if args.download_pdfs:
+            print("\nDownloading %s pdfs to '%s'..." %
+                  (len(pdf.get_references("pdf")), args.download_pdfs))
+            pdf.download_pdfs(args.download_pdfs)
+            print("All done!")
+    except Exception as e:
+        exit_with_error(ERROR_DOWNLOAD, str(e))
 
 
 if __name__ == "__main__":

@@ -93,8 +93,7 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        # 'git+git://github.com/metachris/pdfminer.git@v2.0.0',
-        'pdfminer.six',
+        'pdfminer2',
         'chardet'
     ],
 

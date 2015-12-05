@@ -99,13 +99,16 @@ def get_text_output(pdf, args):
             ret += "\nPDF References:\n"
             for ref in refs["pdf"]:
                 ret += "- %s\n" % ref
+        elif ref_cnt:
+            ret += "\nTip: You can use the '-v' flag to see all references\n"
     else:
         if ref_cnt:
             for reftype in refs:
                 ret += "\n%s References:\n" % reftype.upper()
                 for ref in refs[reftype]:
                     ret += "- %s\n" % ref
-    return ret
+
+    return ret.strip()
 
 
 def print_to_console(text):

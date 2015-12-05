@@ -107,6 +107,7 @@ Lets take a look at this paper: https://weakdh.org/imperfect-forward-secrecy.pdf
     - http://www.spiegel.de/media/media-35520.pdf
     - http://www.spiegel.de/media/media-35551.pdf
 
+You can use the ``-v`` flag to output all references instead of just the PDFs.
 
 Download all referenced pdfs with **``-d``** (for ``download-pdfs``) to the specified directory (eg. ``./``)::
 
@@ -137,7 +138,7 @@ Various
 =======
 
 * Author: Chris Hager <chris@linuxuser.at>
-* Homepage: http://www.metachris.com/pdfx
+* Homepage: https://www.metachris.com/pdfx
 * License: Apache
 
-Feedback, ideas and pull requests are welcome! If you enhance PDFx please also add yourself to the AUTHORS file!
+Feedback, ideas and pull requests are welcome!

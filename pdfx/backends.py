@@ -19,8 +19,9 @@ from .libs.xmp import xmp_to_dict
 
 # Setting `psparser.STRICT` is the first thing to do because it is
 # referenced in the other pdfparser modules
+from pdfminer import settings as pdfminer_settings
+pdfminer_settings.STRICT = False
 from pdfminer import psparser
-psparser.STRICT = False
 from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdfparser import PDFParser
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter

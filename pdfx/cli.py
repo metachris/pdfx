@@ -12,16 +12,19 @@ import sys
 import argparse
 import json
 import codecs
-import locale
 
 import pdfx
 
-if sys.version_info < (3, 0):
+IS_PY2 = sys.version_info < (3, 0)
+if IS_PY2:
     # Python 2
     parse_str = unicode
 else:
     # Python 3
     parse_str = str
+
+# print(sys.version)
+# print("stdout encoding: %s" % sys.stdout.encoding)
 
 
 def exit_with_error(code, *objs):
@@ -112,12 +115,18 @@ def get_text_output(pdf, args):
 
 
 def print_to_console(text):
-    enc = locale.getdefaultlocale()[1] or "utf-8"
+    # Prints a (unicode) string to the console, encoded depending on the stdout
+    # encoding (eg. cp437 on Windows). Works with Python 2 and 3.
     try:
-        print(text.encode(enc, errors="backslashreplace"))
-    except (LookupError, UnicodeEncodeError):
-        # Unknown encoding or encoding problem. Fallback to ascii
-        print(text.encode("ascii", errors="backslashreplace"))
+        sys.stdout.write(text)
+    except UnicodeEncodeError:
+        bytes_string = text.encode(sys.stdout.encoding, 'backslashreplace')
+        if hasattr(sys.stdout, 'buffer'):
+            sys.stdout.buffer.write(bytes_string)
+        else:
+            text = bytes_string.decode(sys.stdout.encoding, 'strict')
+            sys.stdout.write(text)
+    sys.stdout.write("\n")
 
 
 def main():

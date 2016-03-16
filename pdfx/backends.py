@@ -196,19 +196,19 @@ class PDFMinerBackend(ReaderBackend):
             self.metadata["Pages"] += 1
 
             # Collect URL annotations
-            try:
-                if page.annots:
-                    refs = self.resolve_PDFObjRef(page.annots)
-                    if refs:
-                        if isinstance(refs, list):
-                            for ref in refs:
-                                if ref:
-                                    self.references.add(ref)
-                        elif isinstance(refs, Reference):
-                            self.references.add(refs)
+            # try:
+            if page.annots:
+                refs = self.resolve_PDFObjRef(page.annots)
+                if refs:
+                    if isinstance(refs, list):
+                        for ref in refs:
+                            if ref:
+                                self.references.add(ref)
+                    elif isinstance(refs, Reference):
+                        self.references.add(refs)
 
-            except Exception as e:
-                logger.warning(str(e))
+            # except Exception as e:
+                # logger.warning(str(e))
 
         # Remove empty metadata entries
         self.metadata_cleanup()
@@ -242,25 +242,32 @@ class PDFMinerBackend(ReaderBackend):
             # print("type not of PDFObjRef")
             return None
 
-        b = obj_ref.resolve()
-        # print("b:", b, type(b))
-        if isinstance(b, (str, unicode)):
-            return Reference(b.decode("utf-8"))
+        obj_resolved = obj_ref.resolve()
+        # print("obj_resolved:", obj_resolved, type(obj_resolved))
+        if isinstance(obj_resolved, bytes):
+            obj_resolved = obj_resolved.decode("utf-8")
 
-        if isinstance(b, list):
-            return [self.resolve_PDFObjRef(o) for o in b]
+        if isinstance(obj_resolved, (str, unicode)):
+            if IS_PY2:
+                ref = obj_resolved.decode("utf-8")
+            else:
+                ref = obj_resolved
+            return Reference(ref)
 
-        if "URI" in b:
-            if isinstance(b["URI"], PDFObjRef):
-                return self.resolve_PDFObjRef(b["URI"])
+        if isinstance(obj_resolved, list):
+            return [self.resolve_PDFObjRef(o) for o in obj_resolved]
 
-        if "A" in b:
-            if isinstance(b["A"], PDFObjRef):
-                return self.resolve_PDFObjRef(b["A"])
+        if "URI" in obj_resolved:
+            if isinstance(obj_resolved["URI"], PDFObjRef):
+                return self.resolve_PDFObjRef(obj_resolved["URI"])
 
-            if "URI" in b["A"]:
+        if "A" in obj_resolved:
+            if isinstance(obj_resolved["A"], PDFObjRef):
+                return self.resolve_PDFObjRef(obj_resolved["A"])
+
+            if "URI" in obj_resolved["A"]:
                 # print("->", a["A"]["URI"])
-                return Reference(b["A"]["URI"].decode("utf-8"))
+                return Reference(obj_resolved["A"]["URI"].decode("utf-8"))
 
 
 class TextBackend(ReaderBackend):

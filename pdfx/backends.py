@@ -256,6 +256,7 @@ class PDFMinerBackend(ReaderBackend):
                 # print("->", a["A"]["URI"])
                 return Reference(b["A"]["URI"].decode("utf-8"))
 
+
 class TextBackend(ReaderBackend):
     def __init__(self, stream):
         self.text = stream.read()

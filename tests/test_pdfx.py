@@ -21,3 +21,12 @@ def test_all():
     urls = pdf.get_references(reftype="pdf")
     assert len(urls) == 18
     # pdf.download_pdfs("/tmp/")
+
+def test_two_pdfs():
+    # See https://github.com/metachris/pdfx/issues/14
+    pdf_1 = pdfx.PDFx(os.path.join(curdir, "pdfs/i14doc1.pdf"))
+    #print([url.ref for url in pdf_1.get_references()])
+
+    pdf_2 = pdfx.PDFx(os.path.join(curdir, "pdfs/i14doc2.pdf"))
+    #print([url.ref for url in pdf_2.get_references()])
+    assert len(pdf_2.get_references()) == 2

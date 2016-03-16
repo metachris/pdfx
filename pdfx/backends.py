@@ -119,6 +119,11 @@ class ReaderBackend(object):
     metadata = {}
     references = set()
 
+    def __init__(self):
+        self.text = ""
+        self.metadata = {}
+        self.references = set()
+
     def get_metadata(self):
         return self.metadata
 
@@ -152,6 +157,7 @@ class ReaderBackend(object):
 
 class PDFMinerBackend(ReaderBackend):
     def __init__(self, pdf_stream, password='', pagenos=[], maxpages=0):
+        ReaderBackend.__init__(self)
         self.pdf_stream = pdf_stream
 
         # Extract Metadata
@@ -259,6 +265,7 @@ class PDFMinerBackend(ReaderBackend):
 
 class TextBackend(ReaderBackend):
     def __init__(self, stream):
+        ReaderBackend.__init__(self)
         self.text = stream.read()
 
         # Extract URL references from text

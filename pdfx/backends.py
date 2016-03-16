@@ -26,7 +26,7 @@ from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdfparser import PDFParser
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.pdfpage import PDFPage
-from pdfminer.pdftypes import resolve1
+from pdfminer.pdftypes import resolve1, PDFObjRef
 from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
 
@@ -191,12 +191,16 @@ class PDFMinerBackend(ReaderBackend):
 
             # Collect URL annotations
             try:
-                if page.annots and isinstance(page.annots, list):
-                    for annot in page.annots:
-                        a = annot.resolve()
-                        if "A" in a and "URI" in a["A"]:
-                            ref = Reference(a["A"]["URI"].decode("utf-8"))
-                            self.references.add(ref)
+                if page.annots:
+                    refs = self.resolve_PDFObjRef(page.annots)
+                    if refs:
+                        if isinstance(refs, list):
+                            for ref in refs:
+                                if ref:
+                                    self.references.add(ref)
+                        elif isinstance(refs, Reference):
+                            self.references.add(refs)
+
             except Exception as e:
                 logger.warning(str(e))
 
@@ -219,6 +223,38 @@ class PDFMinerBackend(ReaderBackend):
         for ref in extractor.extract_doi(self.text):
             self.references.add(Reference(ref))
 
+    def resolve_PDFObjRef(self, obj_ref):
+        """
+        Resolves PDFObjRef objects. Returns either None, a Reference object or
+        a list of Reference objects.
+        """
+        if isinstance(obj_ref, list):
+            return [self.resolve_PDFObjRef(item) for item in obj_ref]
+
+        # print(">", obj_ref, type(obj_ref))
+        if not isinstance(obj_ref, PDFObjRef):
+            # print("type not of PDFObjRef")
+            return None
+
+        b = obj_ref.resolve()
+        # print("b:", b, type(b))
+        if isinstance(b, (str, unicode)):
+            return Reference(b.decode("utf-8"))
+
+        if isinstance(b, list):
+            return [self.resolve_PDFObjRef(o) for o in b]
+
+        if "URI" in b:
+            if isinstance(b["URI"], PDFObjRef):
+                return self.resolve_PDFObjRef(b["URI"])
+
+        if "A" in b:
+            if isinstance(b["A"], PDFObjRef):
+                return self.resolve_PDFObjRef(b["A"])
+
+            if "URI" in b["A"]:
+                # print("->", a["A"]["URI"])
+                return Reference(b["A"]["URI"].decode("utf-8"))
 
 class TextBackend(ReaderBackend):
     def __init__(self, stream):

@@ -75,10 +75,12 @@ class Reference(object):
     """ Generic Reference """
     ref = ""
     reftype = "url"
+    page = 0
 
-    def __init__(self, uri):
+    def __init__(self, uri, page=0):
         self.ref = uri
         self.reftype = "url"
+        self.page = page
 
         # Detect reftype by filetype
         if uri.lower().endswith(".pdf"):
@@ -188,12 +190,14 @@ class PDFMinerBackend(ReaderBackend):
         interpreter = PDFPageInterpreter(rsrcmgr, converter)
 
         self.metadata["Pages"] = 0
+        self.curpage = 0
         for page in PDFPage.get_pages(self.pdf_stream, pagenos=pagenos,
                                       maxpages=maxpages, password=password,
                                       caching=True, check_extractable=False):
             # Read page contents
             interpreter.process_page(page)
             self.metadata["Pages"] += 1
+            self.curpage += 1
 
             # Collect URL annotations
             # try:
@@ -221,13 +225,13 @@ class PDFMinerBackend(ReaderBackend):
 
         # Extract URL references from text
         for url in extractor.extract_urls(self.text):
-            self.references.add(Reference(url))
+            self.references.add(Reference(url, self.curpage))
 
         for ref in extractor.extract_arxiv(self.text):
-            self.references.add(Reference(ref))
+            self.references.add(Reference(ref, self.curpage))
 
         for ref in extractor.extract_doi(self.text):
-            self.references.add(Reference(ref))
+            self.references.add(Reference(ref, self.curpage))
 
     def resolve_PDFObjRef(self, obj_ref):
         """
@@ -252,7 +256,7 @@ class PDFMinerBackend(ReaderBackend):
                 ref = obj_resolved.decode("utf-8")
             else:
                 ref = obj_resolved
-            return Reference(ref)
+            return Reference(ref, self.curpage)
 
         if isinstance(obj_resolved, list):
             return [self.resolve_PDFObjRef(o) for o in obj_resolved]
@@ -267,7 +271,8 @@ class PDFMinerBackend(ReaderBackend):
 
             if "URI" in obj_resolved["A"]:
                 # print("->", a["A"]["URI"])
-                return Reference(obj_resolved["A"]["URI"].decode("utf-8"))
+                return Reference(obj_resolved["A"]["URI"].decode("utf-8"),
+                                 self.curpage)
 
 
 class TextBackend(ReaderBackend):

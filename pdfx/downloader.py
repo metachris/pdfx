@@ -25,6 +25,7 @@ MAX_THREADS_DEFAULT = 7
 if hasattr(ssl, "_create_unverified_context"):
     ssl_unverified_context = ssl._create_unverified_context()
 else:
+    # Not existing in Python 2.6
     ssl_unverified_context = None
 
 
@@ -55,13 +56,14 @@ def get_status_code(url):
         return None
 
 
-def check_urls(urls, verbose=True, max_threads=MAX_THREADS_DEFAULT):
+def check_refs(refs, verbose=True, max_threads=MAX_THREADS_DEFAULT):
     """ Check if urls exist """
     codes = defaultdict(list)
 
-    def check_url(url):
+    def check_url(ref):
+        url = ref.ref
         status_code = str(get_status_code(url))
-        codes[status_code].append(url)
+        codes[status_code].append(ref)
         if verbose:
             if status_code == "200":
                 colorprint(OKGREEN, "%s - %s" % (status_code, url))
@@ -71,7 +73,7 @@ def check_urls(urls, verbose=True, max_threads=MAX_THREADS_DEFAULT):
     # Start a threadpool and add the check-url tasks
     try:
         pool = ThreadPool(5)
-        pool.map(check_url, urls)
+        pool.map(check_url, refs)
         pool.wait_completion()
 
     except Exception as e:
@@ -83,11 +85,14 @@ def check_urls(urls, verbose=True, max_threads=MAX_THREADS_DEFAULT):
     print("\nSummary of link checker:")
     if "200" in codes:
         colorprint(OKGREEN, "%s working" % len(codes["200"]))
-    for c in codes:
+    for c in sorted(codes):
         if c != "200":
             colorprint(FAIL, "%s broken (reason: %s)" % (len(codes[c]), c))
-            for url in codes[c]:
-                print(u"  - %s" % url)
+            for ref in codes[c]:
+                o = u"  - %s" % ref.ref
+                if ref.page > 0:
+                    o += " (page %s)" % ref.page
+                print(o)
 
 
 def download_urls(urls, output_directory, verbose=True,

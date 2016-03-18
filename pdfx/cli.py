@@ -13,7 +13,7 @@ import json
 import codecs
 
 import pdfx
-from pdfx.downloader import check_urls
+from pdfx.downloader import check_refs
 
 
 IS_PY2 = sys.version_info < (3, 0)
@@ -189,19 +189,10 @@ def main():
             print_to_console(text)
 
     if args.check_links:
-        refs = pdf.get_references()
+        refs_all = pdf.get_references()
+        refs = [ref for ref in refs_all if ref.reftype in ["url", "pdf"]]
         print("\nChecking %s URLs for broken links..." % len(refs))
-        urls = []
-        for ref in refs:
-            # We only check URLs and PDF links
-            if ref.reftype not in ["url", "pdf"]:
-                continue
-
-            url = ref.ref
-            if not url.startswith("http"):
-                url = u"http://%s" % url
-            urls.append(url)
-        check_urls(urls)
+        check_refs(refs)
 
     try:
         if args.download_pdfs:

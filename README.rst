@@ -41,7 +41,7 @@ Grab a copy of the code with ``easy_install`` or ``pip``, and run it::
 Run ``pdfx -h`` to see the help output::
 
     $ pdfx -h
-    usage: pdfx [-h] [-d OUTPUT_DIRECTORY] [-j] [-v] [-t] [-o OUTPUT_FILE]
+    usage: pdfx [-h] [-d OUTPUT_DIRECTORY] [-c] [-j] [-v] [-t] [-o OUTPUT_FILE]
                 [--version]
                 pdf
 
@@ -55,8 +55,9 @@ Run ``pdfx -h`` to see the help output::
       -h, --help            show this help message and exit
       -d OUTPUT_DIRECTORY, --download-pdfs OUTPUT_DIRECTORY
                             Download all referenced PDFs into specified directory
+      -c, --check-links     Check for broken links
       -j, --json            Output infos as JSON (instead of plain text)
-      -v, --verbose         Print all references (instead of only PDF)
+      -v, --verbose         Print all references (instead of only PDFs)
       -t, --text            Only extract text (no metadata or references)
       -o OUTPUT_FILE, --output-file OUTPUT_FILE
                             Output to specified file instead of console
@@ -139,12 +140,6 @@ Usage as Python library
     >>> references_list = pdf.get_references()
     >>> references_dict = pdf.get_references_as_dict()
     >>> pdf.download_pdfs("target-directory")
-
-
-TODO
-====
-
-* https://github.com/metachris/pdfx/issues
 
 
 Various

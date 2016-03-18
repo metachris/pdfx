@@ -8,7 +8,6 @@ IS_PY2 = sys.version_info < (3, 0)
 if IS_PY2:
     # Python 2
     from Queue import Queue
-    from urllib2 import Request, urlopen, HTTPError, URLError
 else:
     # Python 3
     from queue import Queue
@@ -39,7 +38,8 @@ class ThreadPool:
     """ Pool of threads consuming tasks from a queue """
     def __init__(self, num_threads):
         self.tasks = Queue(num_threads)
-        for _ in range(num_threads): Worker(self.tasks)
+        for _ in range(num_threads):
+            Worker(self.tasks)
 
     def add_task(self, func, *args, **kargs):
         """ Add a task to the queue """
@@ -71,4 +71,3 @@ if __name__ == "__main__":
         pool.add_task(wait_delay, d)
 
     pool.wait_completion()
-

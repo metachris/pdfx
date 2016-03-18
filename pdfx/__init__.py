@@ -40,7 +40,7 @@ import shutil
 import logging
 
 __title__ = 'pdfx'
-__version__ = '1.2.6'
+__version__ = '1.2.7'
 __author__ = 'Chris Hager'
 __license__ = 'Apache 2.0'
 __copyright__ = 'Copyright 2015 Chris Hager'
@@ -59,7 +59,7 @@ else:
 
 from .extractor import extract_urls
 from .backends import PDFMinerBackend, TextBackend
-from .threadeddownload import ThreadedDownloader
+from .downloader import download_urls
 from .exceptions import FileNotFoundError, DownloadError, PDFInvalidError
 from pdfminer.pdfparser import PDFSyntaxError
 
@@ -195,13 +195,13 @@ class PDFx(object):
 
         # Download references
         urls = [ref.ref for ref in self.get_references("pdf")]
-        if urls:
-            dir_referenced_pdfs = os.path.join(
-                target_dir, "%s-referenced-pdfs" % self.fn)
-            logger.debug("Downloading %s referenced pdfs..." %
-                         len(urls))
+        if not urls:
+            return
 
-            # Download urls as a set to avoid duplicates
-            tdl = ThreadedDownloader(urls, dir_referenced_pdfs)
-            tdl.start_downloads()
-            tdl.wait_for_downloads()
+        dir_referenced_pdfs = os.path.join(
+            target_dir, "%s-referenced-pdfs" % self.fn)
+        logger.debug("Downloading %s referenced pdfs..." %
+                     len(urls))
+
+        # Download urls as a set to avoid duplicates
+        download_urls(urls, dir_referenced_pdfs)

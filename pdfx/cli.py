@@ -8,12 +8,13 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import sys
-# import logging
 import argparse
 import json
 import codecs
 
 import pdfx
+from pdfx.downloader import check_urls
+
 
 IS_PY2 = sys.version_info < (3, 0)
 if IS_PY2:
@@ -25,7 +26,6 @@ else:
 
 # print(sys.version)
 # print("stdout encoding: %s" % sys.stdout.encoding)
-
 
 def exit_with_error(code, *objs):
     print("ERROR %s:" % code, *objs, file=sys.stderr)
@@ -51,6 +51,12 @@ def create_parser():
         "--download-pdfs",
         metavar="OUTPUT_DIRECTORY",
         help="Download all referenced PDFs into specified directory")
+
+    parser.add_argument(
+        "-c",
+        "--check-links",
+        action='store_true',
+        help="Check for broken links")
 
     parser.add_argument("-j",
                         "--json",
@@ -180,6 +186,21 @@ def main():
         else:
             # to console
             print_to_console(text)
+
+    if args.check_links:
+        refs = pdf.get_references()
+        print("\nChecking %s URLs for broken links..." % len(refs))
+        urls = []
+        for ref in refs:
+            # We only check URLs and PDF links
+            if not ref.reftype in ["url", "pdf"]:
+                continue
+
+            url = ref.ref
+            if not url.startswith("http"):
+                url = u"http://%s" % url
+            urls.append(url)
+        check_urls(urls)
 
     try:
         if args.download_pdfs:

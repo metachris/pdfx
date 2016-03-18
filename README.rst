@@ -14,13 +14,14 @@ PDFx
 Introduction
 ============
 
-Extract metadata and references from a local or remote PDF, and optionally download all referenced PDFs.
+Extract references (pdf, url, doi) and metadata from a PDF. Optionally download all referenced PDFs and check for broken links.
 
 **Features**
 
-* Extract metadata and references from a given PDF
+* Extract references and metadata from a given PDF
 * Detects pdf, url, arxiv and doi references
 * **Fast, parallel download of all referenced PDFs**
+* **Check for broken links (using the ``-c`` flag)**
 * Output as text or JSON (using the ``-j`` flag)
 * Extract the PDF text (using the ``--text`` flag)
 * Use as command-line tool or Python package
@@ -33,7 +34,7 @@ Getting Started
 
 Grab a copy of the code with ``easy_install`` or ``pip``, and run it::
 
-    $ easy_install -U pdfx
+    $ sudo easy_install -U pdfx
     ...
     $ pdfx <pdf-file-or-url>
 
@@ -109,10 +110,22 @@ Lets take a look at this paper: https://weakdh.org/imperfect-forward-secrecy.pdf
 
 You can use the ``-v`` flag to output all references instead of just the PDFs.
 
-Download all referenced pdfs with **``-d``** (for ``download-pdfs``) to the specified directory (eg. ``./``)::
+**Download all referenced pdfs** with ``-d`` (for ``download-pdfs``) to the specified directory (eg. to ``/tmp/``)::
 
-    $ pdfx https://weakdh.org/imperfect-forward-secrecy.pdf -d ./
+    $ pdfx https://weakdh.org/imperfect-forward-secrecy.pdf -d /tmp/
     ...
+
+To **extract text**, you can use the ``-t`` flag::
+
+    # Extract text to console
+    $ pdfx https://weakdh.org/imperfect-forward-secrecy.pdf -t
+
+    # Extract text to file
+    $ pdfx https://weakdh.org/imperfect-forward-secrecy.pdf -t -o pdf-text.txt
+
+To **check for broken links** use the ``-c`` flag::
+
+    $ pdfx https://weakdh.org/imperfect-forward-secrecy.pdf -c
 
 
 Usage as Python library

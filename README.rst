@@ -11,22 +11,25 @@ PDFx
 .. image:: https://img.shields.io/badge/license-Apache-blue.svg
    :target: https://github.com/metachris/pdfx/blob/master/LICENSE
 
+
 Introduction
 ============
 
-Extract references (pdf, url, doi) and metadata from a PDF. Optionally download all referenced PDFs and check for broken links.
+Extract references (pdf, url, doi, arxiv) and metadata from a PDF. Optionally download all referenced PDFs and check for broken links.
 
 **Features**
 
 * Extract references and metadata from a given PDF
 * Detects pdf, url, arxiv and doi references
 * **Fast, parallel download of all referenced PDFs**
-* **Check for broken links** (using the ``-c`` flag)
+* **Find broken hyperlinks** (using the ``-c`` flag) (more_)
 * Output as text or JSON (using the ``-j`` flag)
 * Extract the PDF text (using the ``--text`` flag)
 * Use as command-line tool or Python package
 * Compatible with Python 2 and 3
 * Works with local and online pdfs
+
+.. _more: https://www.metachris.com/2016/03/find-broken-hyperlinks-in-a-pdf-document-with-pdfx/
 
 
 Getting Started
@@ -128,7 +131,7 @@ To **check for broken links** use the ``-c`` flag::
 
     $ pdfx https://weakdh.org/imperfect-forward-secrecy.pdf -c
 
-Example video of checking for broken links: http://recordit.co/PsigiMaooH
+[Example (with video) of checking for broken links](https://www.metachris.com/2016/03/find-broken-hyperlinks-in-a-pdf-document-with-pdfx/).
 
 
 Usage as Python library

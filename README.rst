@@ -21,7 +21,7 @@ Extract references (pdf, url, doi) and metadata from a PDF. Optionally download 
 * Extract references and metadata from a given PDF
 * Detects pdf, url, arxiv and doi references
 * **Fast, parallel download of all referenced PDFs**
-* **Check for broken links (using the ``-c`` flag)**
+* **Check for broken links** (using the ``-c`` flag)
 * Output as text or JSON (using the ``-j`` flag)
 * Extract the PDF text (using the ``--text`` flag)
 * Use as command-line tool or Python package
@@ -127,6 +127,8 @@ To **extract text**, you can use the ``-t`` flag::
 To **check for broken links** use the ``-c`` flag::
 
     $ pdfx https://weakdh.org/imperfect-forward-secrecy.pdf -c
+
+Example video of checking for broken links: http://recordit.co/PsigiMaooH
 
 
 Usage as Python library

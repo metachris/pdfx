@@ -129,11 +129,31 @@ class ReaderBackend(object):
     def get_metadata(self):
         return self.metadata
 
+    def metadata_key_cleanup(self, d, k):
+        """ Recursively clean metadata dictionaries """
+        if isinstance(d[k], (str, unicode)):
+            d[k] = d[k].strip()
+            if not d[k]:
+                del d[k]
+        elif isinstance(d[k], (list, tuple)):
+            new_list = []
+            for item in d[k]:
+                if isinstance(item, (str, unicode)):
+                    if item.strip():
+                        new_list.append(item.strip())
+                elif item:
+                    new_list.append(item)
+            d[k] = new_list
+            if len(d[k]) == 0:
+                del d[k]
+        elif isinstance(d[k], dict):
+            for k2 in list(d[k].keys()):
+                self.metadata_key_cleanup(d[k], k2)
+
     def metadata_cleanup(self):
-        """ Delete all metadata fields without values """
+        """ Clean metadata (delete all metadata fields without values) """
         for k in list(self.metadata.keys()):
-            if self.metadata[k] == "":
-                del self.metadata[k]
+            self.metadata_key_cleanup(self.metadata, k)
 
     def get_text(self):
         return self.text

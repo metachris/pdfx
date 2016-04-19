@@ -40,6 +40,14 @@ if not IS_PY2:
     unicode = str
 
 
+def sanitize_url(url):
+    """ Make sure this url works with urllib2 (ascii, http, etc) """
+    if url and not url.startswith("http"):
+        url = u"http://%s" % url
+    # url = url.encode('ascii', 'ignore').decode("utf-8")
+    return url
+
+
 def make_compat_str(in_str):
     """
     Tries to guess encoding of [str/bytes] and
@@ -78,8 +86,6 @@ class Reference(object):
     page = 0
 
     def __init__(self, uri, page=0):
-        self.ref = uri
-        self.reftype = "url"
         self.page = page
 
         # Detect reftype by filetype
@@ -89,6 +95,7 @@ class Reference(object):
 
         # Detect reftype by filetype
         if uri.lower().endswith(".pdf"):
+            self.ref = sanitize_url(uri)
             self.reftype = "pdf"
             return
 
@@ -104,6 +111,10 @@ class Reference(object):
             self.ref = doi.pop()
             self.reftype = "doi"
             return
+
+        # If nothing else matches, then this is a URL
+        self.reftype = "url"
+        self.ref = sanitize_url(uri)
 
     def __hash__(self):
         return hash(self.ref)

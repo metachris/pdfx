@@ -39,6 +39,12 @@ import json
 import shutil
 import logging
 
+from .extractor import extract_urls
+from .backends import PDFMinerBackend, TextBackend
+from .downloader import download_refs
+from .exceptions import FileNotFoundError, DownloadError, PDFInvalidError
+from pdfminer.pdfparser import PDFSyntaxError
+
 __title__ = 'pdfx'
 __version__ = '1.3.2'
 __author__ = 'Chris Hager'
@@ -56,12 +62,6 @@ else:
     from io import BytesIO
     from urllib.request import Request, urlopen
     unicode = str
-
-from .extractor import extract_urls
-from .backends import PDFMinerBackend, TextBackend
-from .downloader import download_refs
-from .exceptions import FileNotFoundError, DownloadError, PDFInvalidError
-from pdfminer.pdfparser import PDFSyntaxError
 
 logger = logging.getLogger(__name__)
 
@@ -126,8 +126,10 @@ class PDFx(object):
 
         # Create ReaderBackend instance
         try:
-            self.reader = PDFMinerBackend(self.stream,
-                    signal_extract_page=self.signal_extract_page)
+            self.reader = PDFMinerBackend(
+                self.stream,
+                signal_extract_page=self.signal_extract_page
+            )
         except PDFSyntaxError as e:
             raise PDFInvalidError("Invalid PDF (%s)" % unicode(e))
 

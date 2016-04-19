@@ -3,14 +3,13 @@ Inspired by http://stackoverflow.com/a/7257510
 """
 
 import sys
+from threading import Thread
 IS_PY2 = sys.version_info < (3, 0)
 
 if IS_PY2:
     from Queue import Queue
 else:
     from queue import Queue
-
-from threading import Thread
 
 
 class Worker(Thread):
@@ -63,7 +62,7 @@ if __name__ == "__main__":
     def wait_delay(d):
         print("sleeping for (%d)sec" % d)
         sleep(d)
-        #raise Exception("xxx")
+        # raise Exception("xxx")
 
     # Generate random delays
     delays = [randrange(3, 7) for i in range(50)]

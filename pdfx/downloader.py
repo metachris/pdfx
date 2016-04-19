@@ -3,8 +3,13 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import os
 import sys
-IS_PY2 = sys.version_info < (3, 0)
+import ssl
 
+from collections import defaultdict
+from .threadpool import ThreadPool
+from .colorprint import colorprint, OKGREEN, FAIL
+
+IS_PY2 = sys.version_info < (3, 0)
 if IS_PY2:
     # Python 2
     from urllib2 import Request, urlopen, HTTPError, URLError
@@ -13,11 +18,6 @@ else:
     from urllib.request import Request, urlopen, HTTPError, URLError
     unicode = str
 
-import ssl
-
-from collections import defaultdict
-from .threadpool import ThreadPool
-from .colorprint import colorprint, OKGREEN, FAIL
 
 MAX_THREADS_DEFAULT = 5
 
@@ -106,6 +106,7 @@ def check_refs(refs, verbose=True, max_threads=MAX_THREADS_DEFAULT,
 
     return codes
 
+
 def download_refs(refs, output_directory, verbose=True,
                   max_threads=MAX_THREADS_DEFAULT,
                   signal_item_started=None, signal_item_finished=None):
@@ -143,7 +144,8 @@ def download_refs(refs, output_directory, verbose=True,
                     colorprint(FAIL, "Error downloading '%s' (%s)" %
                                      (url, status))
         except URLError as e:
-            colorprint(FAIL, "Error downloading '%s' (%s %s)" % (url, e.code, e.reason))
+            colorprint(FAIL, "Error downloading '%s' (%s %s)" %
+                             (url, e.code, e.reason))
             status = e.reason
         except HTTPError as e:
             colorprint(FAIL, "Error downloading '%s' (%s)" % (url, e.code))

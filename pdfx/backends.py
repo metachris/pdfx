@@ -21,14 +21,14 @@ from .libs.xmp import xmp_to_dict
 # referenced in the other pdfparser modules
 from pdfminer import settings as pdfminer_settings
 pdfminer_settings.STRICT = False
-from pdfminer import psparser
-from pdfminer.pdfdocument import PDFDocument
-from pdfminer.pdfparser import PDFParser
-from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
-from pdfminer.pdfpage import PDFPage
-from pdfminer.pdftypes import resolve1, PDFObjRef
-from pdfminer.converter import TextConverter
-from pdfminer.layout import LAParams
+from pdfminer import psparser  # NOQA
+from pdfminer.pdfdocument import PDFDocument  # NOQA
+from pdfminer.pdfparser import PDFParser  # NOQA
+from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter  # NOQA
+from pdfminer.pdfpage import PDFPage  # NOQA
+from pdfminer.pdftypes import resolve1, PDFObjRef  # NOQA
+from pdfminer.converter import TextConverter  # NOQA
+from pdfminer.layout import LAParams  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -194,7 +194,8 @@ class ReaderBackend(object):
 
 
 class PDFMinerBackend(ReaderBackend):
-    def __init__(self, pdf_stream, password='', pagenos=[], maxpages=0, signal_extract_page=None):
+    def __init__(self, pdf_stream, password='', pagenos=[], maxpages=0,
+                 signal_extract_page=None):
         ReaderBackend.__init__(self)
         self.pdf_stream = pdf_stream
 

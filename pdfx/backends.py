@@ -83,6 +83,11 @@ class Reference(object):
         self.page = page
 
         # Detect reftype by filetype
+        if uri.lower().startswith("mailto:"):
+            self.reftype = "email"
+            return
+
+        # Detect reftype by filetype
         if uri.lower().endswith(".pdf"):
             self.reftype = "pdf"
             return
@@ -178,7 +183,7 @@ class ReaderBackend(object):
 
 
 class PDFMinerBackend(ReaderBackend):
-    def __init__(self, pdf_stream, password='', pagenos=[], maxpages=0):
+    def __init__(self, pdf_stream, password='', pagenos=[], maxpages=0, signal_extract_page=None):
         ReaderBackend.__init__(self)
         self.pdf_stream = pdf_stream
 
@@ -215,9 +220,11 @@ class PDFMinerBackend(ReaderBackend):
                                       maxpages=maxpages, password=password,
                                       caching=True, check_extractable=False):
             # Read page contents
-            interpreter.process_page(page)
             self.metadata["Pages"] += 1
             self.curpage += 1
+            if signal_extract_page:
+                signal_extract_page(self.curpage)
+            interpreter.process_page(page)
 
             # Collect URL annotations
             # try:
@@ -251,6 +258,9 @@ class PDFMinerBackend(ReaderBackend):
             self.references.add(Reference(ref, self.curpage))
 
         for ref in extractor.extract_doi(self.text):
+            self.references.add(Reference(ref, self.curpage))
+
+        for ref in extractor.extract_emails(self.text):
             self.references.add(Reference(ref, self.curpage))
 
     def resolve_PDFObjRef(self, obj_ref):
@@ -308,4 +318,7 @@ class TextBackend(ReaderBackend):
             self.references.add(Reference(ref))
 
         for ref in extractor.extract_doi(self.text):
+            self.references.add(Reference(ref))
+
+        for ref in extractor.extract_emails(self.text):
             self.references.add(Reference(ref))

@@ -6,10 +6,8 @@ import sys
 IS_PY2 = sys.version_info < (3, 0)
 
 if IS_PY2:
-    # Python 2
     from Queue import Queue
 else:
-    # Python 3
     from queue import Queue
 
 from threading import Thread
@@ -29,8 +27,10 @@ class Worker(Thread):
             try:
                 func(*args, **kargs)
             except Exception as e:
+                # An exception happened in this thread
                 print(e)
             finally:
+                # Mark this task as done, whether an exception happened or not
                 self.tasks.task_done()
 
 
@@ -59,15 +59,21 @@ if __name__ == "__main__":
     from random import randrange
     from time import sleep
 
-    delays = [randrange(5, 10) for i in range(100)]
-
+    # Function to be executed in a thread
     def wait_delay(d):
         print("sleeping for (%d)sec" % d)
         sleep(d)
+        #raise Exception("xxx")
 
+    # Generate random delays
+    delays = [randrange(3, 7) for i in range(50)]
+
+    # Instantiate a thread pool with 5 worker threads
     pool = ThreadPool(5)
 
-    for i, d in enumerate(delays):
-        pool.add_task(wait_delay, d)
-
+    # Add the jobs in bulk to the thread pool. Alternatively you could use
+    # `pool.add_task` to add single jobs. The code will block here, which
+    # makes it possible to cancel the thread pool with an exception when
+    # the currently running batch of workers is finished.
+    pool.map(wait_delay, delays)
     pool.wait_completion()

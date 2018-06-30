@@ -92,7 +92,7 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        'pdfminer2',
+        'pdfminer.six',
         'chardet'
     ],
 

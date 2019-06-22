@@ -131,7 +131,7 @@ To **check for broken links** use the ``-c`` flag::
 
     $ pdfx https://weakdh.org/imperfect-forward-secrecy.pdf -c
 
-[Example (with video) of checking for broken links](https://www.metachris.com/2016/03/find-broken-hyperlinks-in-a-pdf-document-with-pdfx/).
+Example (with video) of checking for broken links: https://www.metachris.com/2016/03/find-broken-hyperlinks-in-a-pdf-document-with-pdfx/
 
 
 Usage as Python library

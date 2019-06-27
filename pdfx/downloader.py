@@ -108,7 +108,7 @@ def download_urls(urls, output_directory, verbose=True,
 
     def download_url(url):
         try:
-            fn = url.split("/")[-1]
+            fn = url.split("/")[-1].split("?")[0]
             fn_download = os.path.join(output_directory, fn)
             with open(fn_download, "wb") as f:
                 request = Request(sanitize_url(url))

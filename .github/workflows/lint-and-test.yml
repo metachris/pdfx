@@ -10,6 +10,7 @@ jobs:
 
       matrix:
         python-version:
+          - "2.6"
           - "2.7"
           - "3.6"
           - "3.7"
@@ -31,3 +32,7 @@ jobs:
 
     - run: python -V
     - run: pip -V
+
+    - run: flake8 pdfx tests setup.py --exclude="pdfx/libs,pdfx/extractor.py"
+    - run: py.test --strict --capture=no tests
+    - run: python setup.py check --restructuredtext --strict

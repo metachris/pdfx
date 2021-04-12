@@ -1,47 +1,38 @@
-====
-PDFx
-====
+# PDFx
 
-.. image:: https://badge.fury.io/py/pdfx.svg
-   :target: https://pypi.python.org/pypi/pdfx
+[![image](https://badge.fury.io/py/pdfx.svg)](https://pypi.python.org/pypi/pdfx)
 
-.. image:: https://travis-ci.org/metachris/pdfx.svg?branch=master
-   :target: https://travis-ci.org/metachris/pdfx
+[![image](https://travis-ci.org/metachris/pdfx.svg?branch=master)](https://travis-ci.org/metachris/pdfx)
 
-.. image:: https://img.shields.io/badge/license-Apache-blue.svg
-   :target: https://github.com/metachris/pdfx/blob/master/LICENSE
+[![image](https://img.shields.io/badge/license-Apache-blue.svg)](https://github.com/metachris/pdfx/blob/master/LICENSE)
 
+## Introduction
 
-Introduction
-============
-
-Extract references (pdf, url, doi, arxiv) and metadata from a PDF. Optionally download all referenced PDFs and check for broken links.
+Extract references (pdf, url, doi, arxiv) and metadata from a PDF.
+Optionally download all referenced PDFs and check for broken links.
 
 **Features**
 
-* Extract references and metadata from a given PDF
-* Detects pdf, url, arxiv and doi references
-* **Fast, parallel download of all referenced PDFs**
-* **Find broken hyperlinks** (using the ``-c`` flag) (more_)
-* Output as text or JSON (using the ``-j`` flag)
-* Extract the PDF text (using the ``--text`` flag)
-* Use as command-line tool or Python package
-* Compatible with Python 2 and 3
-* Works with local and online pdfs
+-   Extract references and metadata from a given PDF
+-   Detects pdf, url, arxiv and doi references
+-   **Fast, parallel download of all referenced PDFs**
+-   **Find broken hyperlinks** (using the `-c` flag)
+    ([more](https://www.metachris.com/2016/03/find-broken-hyperlinks-in-a-pdf-document-with-pdfx/))
+-   Output as text or JSON (using the `-j` flag)
+-   Extract the PDF text (using the `--text` flag)
+-   Use as command-line tool or Python package
+-   Compatible with Python 2 and 3
+-   Works with local and online pdfs
 
-.. _more: https://www.metachris.com/2016/03/find-broken-hyperlinks-in-a-pdf-document-with-pdfx/
+## Getting Started
 
-
-Getting Started
-===============
-
-Grab a copy of the code with ``easy_install`` or ``pip``, and run it::
+Grab a copy of the code with `easy_install` or `pip`, and run it:
 
     $ sudo easy_install -U pdfx
     ...
     $ pdfx <pdf-file-or-url>
 
-Run ``pdfx -h`` to see the help output::
+Run `pdfx -h` to see the help output:
 
     $ pdfx -h
     usage: pdfx [-h] [-d OUTPUT_DIRECTORY] [-c] [-j] [-v] [-t] [-o OUTPUT_FILE]
@@ -66,11 +57,10 @@ Run ``pdfx -h`` to see the help output::
                             Output to specified file instead of console
       --version             show program's version number and exit
 
+## Examples
 
-Examples
-========
-
-Lets take a look at this paper: https://weakdh.org/imperfect-forward-secrecy.pdf::
+Lets take a look at this paper:
+<https://weakdh.org/imperfect-forward-secrecy.pdf>:
 
     $ pdfx https://weakdh.org/imperfect-forward-secrecy.pdf
     Document infos:
@@ -112,14 +102,16 @@ Lets take a look at this paper: https://weakdh.org/imperfect-forward-secrecy.pdf
     - http://www.spiegel.de/media/media-35520.pdf
     - http://www.spiegel.de/media/media-35551.pdf
 
-You can use the ``-v`` flag to output all references instead of just the PDFs.
+You can use the `-v` flag to output all references instead of just the
+PDFs.
 
-**Download all referenced pdfs** with ``-d`` (for ``download-pdfs``) to the specified directory (eg. to ``/tmp/``)::
+**Download all referenced pdfs** with `-d` (for `download-pdfs`) to the
+specified directory (eg. to `/tmp/`):
 
     $ pdfx https://weakdh.org/imperfect-forward-secrecy.pdf -d /tmp/
     ...
 
-To **extract text**, you can use the ``-t`` flag::
+To **extract text**, you can use the `-t` flag:
 
     # Extract text to console
     $ pdfx https://weakdh.org/imperfect-forward-secrecy.pdf -t
@@ -127,17 +119,14 @@ To **extract text**, you can use the ``-t`` flag::
     # Extract text to file
     $ pdfx https://weakdh.org/imperfect-forward-secrecy.pdf -t -o pdf-text.txt
 
-To **check for broken links** use the ``-c`` flag::
+To **check for broken links** use the `-c` flag:
 
     $ pdfx https://weakdh.org/imperfect-forward-secrecy.pdf -c
 
-[Example (with video) of checking for broken links](https://www.metachris.com/2016/03/find-broken-hyperlinks-in-a-pdf-document-with-pdfx/).
+\[Example (with video) of checking for broken
+links\](<https://www.metachris.com/2016/03/find-broken-hyperlinks-in-a-pdf-document-with-pdfx/>).
 
-
-Usage as Python library
-=======================
-
-::
+## Usage as Python library
 
     >>> import pdfx
     >>> pdf = pdfx.PDFx("filename-or-url.pdf")
@@ -146,20 +135,22 @@ Usage as Python library
     >>> references_dict = pdf.get_references_as_dict()
     >>> pdf.download_pdfs("target-directory")
 
-
-Dev & Contributing
-==================
+## Dev & Contributing
 
 ```bash
-python3 -m venv venv
-. venv/bin/activate
+python3 -m venv
+venv . venv/bin/activate
 ```
 
-Various
-=======
+Last known working versions of the dependencies:
 
-* Author: Chris Hager <chris@linuxuser.at>
-* Homepage: https://www.metachris.com/pdfx
-* License: Apache
+* pdfminer2==20151206
+* chardet==4.0.0
+
+## Various
+
+-   Author: Chris Hager [twitter.com/metachris](https://twitter.com/metachris)
+-   Homepage: https://www.metachris.com/pdfx
+-   License: Apache
 
 Feedback, ideas and pull requests are welcome!

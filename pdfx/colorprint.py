@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 
 HEADER = "\033[95m"
@@ -20,4 +19,4 @@ ENDC = "\033[0m"
 
 
 def colorprint(color, s):
-    print(u"%s%s%s" % (color, s, ENDC))
+    print("%s%s%s" % (color, s, ENDC))

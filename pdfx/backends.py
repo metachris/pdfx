@@ -3,12 +3,12 @@
 PDF Backend: pdfMiner
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import sys
 import logging
 from io import BytesIO
+from re import compile
 
 # Character Detection Helper
 import chardet
@@ -20,15 +20,16 @@ from .libs.xmp import xmp_to_dict
 # Setting `psparser.STRICT` is the first thing to do because it is
 # referenced in the other pdfparser modules
 from pdfminer import settings as pdfminer_settings
+
 pdfminer_settings.STRICT = False
-from pdfminer import psparser
-from pdfminer.pdfdocument import PDFDocument
-from pdfminer.pdfparser import PDFParser
-from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
-from pdfminer.pdfpage import PDFPage
-from pdfminer.pdftypes import resolve1, PDFObjRef
-from pdfminer.converter import TextConverter
-from pdfminer.layout import LAParams
+from pdfminer import psparser  # noqa: E402
+from pdfminer.pdfdocument import PDFDocument  # noqa: E402
+from pdfminer.pdfparser import PDFParser  # noqa: E402
+from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter  # noqa: E402
+from pdfminer.pdfpage import PDFPage  # noqa: E402
+from pdfminer.pdftypes import resolve1, PDFObjRef  # noqa: E402
+from pdfminer.converter import TextConverter  # noqa: E402
+from pdfminer.layout import LAParams  # noqa: E402
 
 
 logger = logging.getLogger(__name__)
@@ -61,18 +62,19 @@ def make_compat_str(in_str):
     enc = chardet.detect(in_str)
 
     # Decode the object into a unicode object
-    out_str = in_str.decode(enc['encoding'])
+    out_str = in_str.decode(enc["encoding"])
 
     # Cleanup
-    if enc['encoding'] == "UTF-16BE":
+    if enc["encoding"] == "UTF-16BE":
         # Remove byte order marks (BOM)
-        if out_str.startswith('\ufeff'):
+        if out_str.startswith("\ufeff"):
             out_str = out_str[1:]
     return out_str
 
 
 class Reference(object):
     """ Generic Reference """
+
     ref = ""
     reftype = "url"
     page = 0
@@ -82,8 +84,10 @@ class Reference(object):
         self.reftype = "url"
         self.page = page
 
+        self.pdf_regex = compile(r"\.pdf(:?\?.*)?$")
+
         # Detect reftype by filetype
-        if uri.lower().endswith(".pdf"):
+        if self.pdf_regex.search(uri.lower()):
             self.reftype = "pdf"
             return
 
@@ -117,6 +121,7 @@ class ReaderBackend(object):
 
     The job of a Reader is to extract Text and Links.
     """
+
     text = ""
     metadata = {}
     references = set()
@@ -178,7 +183,7 @@ class ReaderBackend(object):
 
 
 class PDFMinerBackend(ReaderBackend):
-    def __init__(self, pdf_stream, password='', pagenos=[], maxpages=0):
+    def __init__(self, pdf_stream, password="", pagenos=[], maxpages=0):  # noqa: C901
         ReaderBackend.__init__(self)
         self.pdf_stream = pdf_stream
 
@@ -195,8 +200,8 @@ class PDFMinerBackend(ReaderBackend):
                     self.metadata[k] = make_compat_str(v.name)
 
         # Secret Metadata
-        if 'Metadata' in doc.catalog:
-            metadata = resolve1(doc.catalog['Metadata']).get_data()
+        if "Metadata" in doc.catalog:
+            metadata = resolve1(doc.catalog["Metadata"]).get_data()
             # print(metadata)  # The raw XMP metadata
             # print(xmp_to_dict(metadata))
             self.metadata.update(xmp_to_dict(metadata))
@@ -205,15 +210,21 @@ class PDFMinerBackend(ReaderBackend):
         # Extract Content
         text_io = BytesIO()
         rsrcmgr = PDFResourceManager(caching=True)
-        converter = TextConverter(rsrcmgr, text_io, codec="utf-8",
-                                  laparams=LAParams(), imagewriter=None)
+        converter = TextConverter(
+            rsrcmgr, text_io, codec="utf-8", laparams=LAParams(), imagewriter=None
+        )
         interpreter = PDFPageInterpreter(rsrcmgr, converter)
 
         self.metadata["Pages"] = 0
         self.curpage = 0
-        for page in PDFPage.get_pages(self.pdf_stream, pagenos=pagenos,
-                                      maxpages=maxpages, password=password,
-                                      caching=True, check_extractable=False):
+        for page in PDFPage.get_pages(
+            self.pdf_stream,
+            pagenos=pagenos,
+            maxpages=maxpages,
+            password=password,
+            caching=True,
+            check_extractable=False,
+        ):
             # Read page contents
             interpreter.process_page(page)
             self.metadata["Pages"] += 1
@@ -232,7 +243,7 @@ class PDFMinerBackend(ReaderBackend):
                         self.references.add(refs)
 
             # except Exception as e:
-                # logger.warning(str(e))
+            # logger.warning(str(e))
 
         # Remove empty metadata entries
         self.metadata_cleanup()
@@ -291,8 +302,7 @@ class PDFMinerBackend(ReaderBackend):
 
             if "URI" in obj_resolved["A"]:
                 # print("->", a["A"]["URI"])
-                return Reference(obj_resolved["A"]["URI"].decode("utf-8"),
-                                 self.curpage)
+                return Reference(obj_resolved["A"]["URI"].decode("utf-8"), self.curpage)
 
 
 class TextBackend(ReaderBackend):

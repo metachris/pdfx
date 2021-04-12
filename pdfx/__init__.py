@@ -30,8 +30,13 @@ https://www.metachris.com/pdfx
 Copyright (c) 2015, Chris Hager <chris@linuxuser.at>
 License: GPLv3
 """
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+__title__ = "pdfx"
+__version__ = "1.4.0"
+__author__ = "Chris Hager"
+__license__ = "Apache 2.0"
+__copyright__ = "Copyright 2015 Chris Hager"
 
 import os
 import sys
@@ -39,11 +44,13 @@ import json
 import shutil
 import logging
 
-__title__ = 'pdfx'
-__version__ = '1.3.1'
-__author__ = 'Chris Hager'
-__license__ = 'Apache 2.0'
-__copyright__ = 'Copyright 2015 Chris Hager'
+
+from .extractor import extract_urls
+from .backends import PDFMinerBackend, TextBackend
+from .downloader import download_urls
+from .exceptions import FileNotFoundError, DownloadError, PDFInvalidError
+from pdfminer.pdfparser import PDFSyntaxError
+
 
 IS_PY2 = sys.version_info < (3, 0)
 
@@ -55,13 +62,8 @@ else:
     # Python 3
     from io import BytesIO
     from urllib.request import Request, urlopen
-    unicode = str
 
-from .extractor import extract_urls
-from .backends import PDFMinerBackend, TextBackend
-from .downloader import download_urls
-from .exceptions import FileNotFoundError, DownloadError, PDFInvalidError
-from pdfminer.pdfparser import PDFSyntaxError
+    unicode = str
 
 logger = logging.getLogger(__name__)
 
@@ -81,6 +83,7 @@ class PDFx(object):
     >>> print(pdf.get_references())
     >>> pdf.download_pdfs("target-directory")
     """
+
     # Available after init
     uri = None  # Original URI
     fn = None  # Filename part of URI
@@ -112,13 +115,11 @@ class PDFx(object):
                 content = urlopen(Request(uri)).read()
                 self.stream = BytesIO(content)
             except Exception as e:
-                raise DownloadError("Error downloading '%s' (%s)" %
-                                    (uri, unicode(e)))
+                raise DownloadError("Error downloading '%s' (%s)" % (uri, unicode(e)))
 
         else:
             if not os.path.isfile(uri):
-                raise FileNotFoundError(
-                    "Invalid filename and not an url: '%s'" % uri)
+                raise FileNotFoundError("Invalid filename and not an url: '%s'" % uri)
             self.fn = os.path.basename(uri)
             self.stream = open(uri, "rb")
 
@@ -143,7 +144,7 @@ class PDFx(object):
             "source": {
                 "type": "url" if self.is_url else "file",
                 "location": self.uri,
-                "filename": self.fn
+                "filename": self.fn,
             },
             "metadata": self.reader.get_metadata(),
         }
@@ -198,10 +199,8 @@ class PDFx(object):
         if not urls:
             return
 
-        dir_referenced_pdfs = os.path.join(
-            target_dir, "%s-referenced-pdfs" % self.fn)
-        logger.debug("Downloading %s referenced pdfs..." %
-                     len(urls))
+        dir_referenced_pdfs = os.path.join(target_dir, "%s-referenced-pdfs" % self.fn)
+        logger.debug("Downloading %s referenced pdfs..." % len(urls))
 
         # Download urls as a set to avoid duplicates
         download_urls(urls, dir_referenced_pdfs)

@@ -1,0 +1,51 @@
+name: Lint and test
+
+on: [push, pull_request]
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+
+      matrix:
+        python-version:
+          #- "2.7"
+          - "3.6"
+          - "3.7"
+          - "3.8"
+          - "3.9"
+          - "3.10-dev"
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install -U pip
+          pip install -e .
+          pip install -r requirements_dev.txt
+
+    - name: Python & pip versions
+      run: |
+        python -V
+        pip -V
+
+    - name: Lint
+      run: make lint
+
+    - name: Test
+      run: make test
+
+    - name: Pylint
+      continue-on-error: true
+      run: pylint pdfx
+
+    - name: mypy
+      continue-on-error: true
+      run: mypy pdfx

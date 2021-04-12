@@ -11,11 +11,18 @@ from setuptools import setup, find_packages
 from codecs import open
 from os import path
 
+def parse_requirements(filename):
+    """ load requirements from a pip requirements file """
+    lineiter = (line.strip() for line in open(filename))
+    return [line for line in lineiter if line and not line.startswith("#")]
+
 here = path.abspath(path.dirname(__file__))
+reqs = parse_requirements(path.join(here, "requirements.txt"))
 
 # Get the long description from the README file
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
+
 
 setup(
     name='pdfx',
@@ -96,18 +103,8 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=[
-        'pdfminer2',
-        'chardet'
-    ],
+    install_requires=reqs,
 
-    # List additional groups of dependencies here (e.g. development
-    # dependencies). You can install these using the following syntax,
-    # for example:
-    # $ pip install -e .[dev,test]
-    extras_require={
-        'dev': ['check-manifest', 'pytest', 'tox', 'flake8', 'pytest']
-    },
 
     # If there are data files included in your packages that need to be
     # installed, specify them here.  If using Python 2.6 or less, then these

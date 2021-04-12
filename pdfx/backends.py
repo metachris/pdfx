@@ -9,6 +9,7 @@ from __future__ import (absolute_import, division, print_function,
 import sys
 import logging
 from io import BytesIO
+from re import compile
 
 # Character Detection Helper
 import chardet
@@ -82,8 +83,10 @@ class Reference(object):
         self.reftype = "url"
         self.page = page
 
+        self.pdf_regex = compile(r'\.pdf(:?\?.*)?$')
+
         # Detect reftype by filetype
-        if uri.lower().endswith(".pdf"):
+        if self.pdf_regex.search(uri.lower()):
             self.reftype = "pdf"
             return
 

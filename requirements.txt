@@ -1,0 +1,2 @@
+pdfminer2==20151206
+chardet==4.0.0

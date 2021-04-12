@@ -138,19 +138,25 @@ links\](<https://www.metachris.com/2016/03/find-broken-hyperlinks-in-a-pdf-docum
 ## Dev & Contributing
 
 ```bash
-# Setup venv, install dependencies
+# Setup venv
 python3 -m venv
 venv . venv/bin/activate
-pip install -e .
 
-# Run the tests
-py.test
+# Install PDFx and dev deps
+pip install -e .
+pip install -r requirements_dev.txt
+
+# Run tests and checks
+make test
+make lint
+make check
+
+# Format the code (with black)
+make format
 ```
 
 Last known working versions of the dependencies:
 
-* pdfminer2==20151206
-* chardet==4.0.0
 
 ## Various
 

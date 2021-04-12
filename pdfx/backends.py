@@ -4,14 +4,6 @@ PDF Backend: pdfMiner
 """
 
 from __future__ import absolute_import, division, print_function, unicode_literals
-from pdfminer.layout import LAParams
-from pdfminer.converter import TextConverter
-from pdfminer.pdftypes import resolve1, PDFObjRef
-from pdfminer.pdfpage import PDFPage
-from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
-from pdfminer.pdfparser import PDFParser
-from pdfminer.pdfdocument import PDFDocument
-from pdfminer import psparser
 
 import sys
 import logging
@@ -30,6 +22,14 @@ from .libs.xmp import xmp_to_dict
 from pdfminer import settings as pdfminer_settings
 
 pdfminer_settings.STRICT = False
+from pdfminer import psparser  # noqa: E402
+from pdfminer.pdfdocument import PDFDocument  # noqa: E402
+from pdfminer.pdfparser import PDFParser  # noqa: E402
+from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter  # noqa: E402
+from pdfminer.pdfpage import PDFPage  # noqa: E402
+from pdfminer.pdftypes import resolve1, PDFObjRef  # noqa: E402
+from pdfminer.converter import TextConverter  # noqa: E402
+from pdfminer.layout import LAParams  # noqa: E402
 
 
 logger = logging.getLogger(__name__)
@@ -41,7 +41,7 @@ if not IS_PY2:
     unicode = str
 
 
-def make_compat_str(in_str):  # noqa: C901
+def make_compat_str(in_str):
     """
     Tries to guess encoding of [str/bytes] and
     return a standard unicode string
@@ -134,7 +134,7 @@ class ReaderBackend(object):
     def get_metadata(self):
         return self.metadata
 
-    def metadata_key_cleanup(self, d, k):  # noqa: C901
+    def metadata_key_cleanup(self, d, k):
         """ Recursively clean metadata dictionaries """
         if isinstance(d[k], (str, unicode)):
             d[k] = d[k].strip()
@@ -264,7 +264,7 @@ class PDFMinerBackend(ReaderBackend):
         for ref in extractor.extract_doi(self.text):
             self.references.add(Reference(ref, self.curpage))
 
-    def resolve_PDFObjRef(self, obj_ref):  # noqa: C901
+    def resolve_PDFObjRef(self, obj_ref):
         """
         Resolves PDFObjRef objects. Returns either None, a Reference object or
         a list of Reference objects.

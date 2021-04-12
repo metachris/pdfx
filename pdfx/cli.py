@@ -97,7 +97,7 @@ def create_parser():
     return parser
 
 
-def get_text_output(pdf, args):  # noqa: C901
+def get_text_output(pdf, args):
     """ Normal output of infos of PDFx instance """
     # Metadata
     ret = ""
@@ -145,7 +145,7 @@ def print_to_console(text):
     sys.stdout.write("\n")
 
 
-def main():  # noqa: C901
+def main():
     parser = create_parser()
     args = parser.parse_args()
 

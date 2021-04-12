@@ -58,7 +58,7 @@ def get_status_code(url):
         return None
 
 
-def check_refs(refs, verbose=True, max_threads=MAX_THREADS_DEFAULT):  # noqa: C901
+def check_refs(refs, verbose=True, max_threads=MAX_THREADS_DEFAULT):
     """ Check if urls exist """
     codes = defaultdict(list)
 
@@ -97,7 +97,7 @@ def check_refs(refs, verbose=True, max_threads=MAX_THREADS_DEFAULT):  # noqa: C9
                 print(o)
 
 
-def download_urls(  # noqa: C901
+def download_urls(
     urls, output_directory, verbose=True, max_threads=MAX_THREADS_DEFAULT
 ):
     """ Download urls to a target directory """

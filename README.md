@@ -1,9 +1,7 @@
 # PDFx
 
 [![image](https://badge.fury.io/py/pdfx.svg)](https://pypi.python.org/pypi/pdfx)
-
 [![image](https://travis-ci.org/metachris/pdfx.svg?branch=master)](https://travis-ci.org/metachris/pdfx)
-
 [![image](https://img.shields.io/badge/license-Apache-blue.svg)](https://github.com/metachris/pdfx/blob/master/LICENSE)
 
 ## Introduction

@@ -32,9 +32,12 @@ jobs:
 
     - run: python -V
     - run: pip -V
+    - run: pip install -e .
 
     - name: Lint
-      run: flake8 pdfx tests setup.py --exclude="pdfx/libs,pdfx/extractor.py"
+      continue-on-error: true
+      # run: flake8 pdfx tests setup.py --exclude="pdfx/libs,pdfx/extractor.py"
+      run: flake8 pdfx tests setup.py
 
     - name: Run the test suite
       run: py.test --strict --capture=no tests

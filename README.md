@@ -138,8 +138,13 @@ links\](<https://www.metachris.com/2016/03/find-broken-hyperlinks-in-a-pdf-docum
 ## Dev & Contributing
 
 ```bash
+# Setup venv, install dependencies
 python3 -m venv
 venv . venv/bin/activate
+pip install -e .
+
+# Run the tests
+py.test
 ```
 
 Last known working versions of the dependencies:

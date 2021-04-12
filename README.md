@@ -1,7 +1,7 @@
 # PDFx
 
+![Build status for master branch](https://github.com/metachris/pdfx/workflows/Lint%20and%20test/badge.svg)
 [![image](https://badge.fury.io/py/pdfx.svg)](https://pypi.python.org/pypi/pdfx)
-[![image](https://travis-ci.org/metachris/pdfx.svg?branch=master)](https://travis-ci.org/metachris/pdfx)
 [![image](https://img.shields.io/badge/license-Apache-blue.svg)](https://github.com/metachris/pdfx/blob/master/LICENSE)
 
 ## Introduction
@@ -153,13 +153,19 @@ make check
 make format
 ```
 
-Last known working versions of the dependencies:
+### Releasing
+
+* Update version number in `setup.py` and `pdfx/__init__.py`
+* Create a git tag starting with `v` (eg. `git tag v1.5.9`)
+* Push the tag to GitHub: `git push --tags`
+
+GitHub Actions is then publishing to PyPI.
 
 
 ## Various
 
--   Author: Chris Hager [twitter.com/metachris](https://twitter.com/metachris)
--   Homepage: https://www.metachris.com/pdfx
--   License: Apache
+- Author: Chris Hager [twitter.com/metachris](https://twitter.com/metachris)
+- Homepage: https://www.metachris.com/pdfx
+- License: Apache
 
 Feedback, ideas and pull requests are welcome!

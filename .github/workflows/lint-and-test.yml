@@ -10,7 +10,6 @@ jobs:
 
       matrix:
         python-version:
-          - "2.6"
           - "2.7"
           - "3.6"
           - "3.7"
@@ -44,4 +43,4 @@ jobs:
 
     - name: Checks
       continue-on-error: true
-      run: make ceck
+      run: make check

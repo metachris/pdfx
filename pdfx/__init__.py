@@ -33,7 +33,7 @@ License: GPLv3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 __title__ = "pdfx"
-__version__ = "1.3.1"
+__version__ = "1.4.0"
 __author__ = "Chris Hager"
 __license__ = "Apache 2.0"
 __copyright__ = "Copyright 2015 Chris Hager"

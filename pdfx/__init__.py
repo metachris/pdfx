@@ -204,3 +204,13 @@ class PDFx(object):
 
         # Download urls as a set to avoid duplicates
         download_urls(urls, dir_referenced_pdfs)
+
+    def close(self):
+        if self.stream:
+            self.stream.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()

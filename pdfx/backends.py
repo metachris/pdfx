@@ -295,6 +295,8 @@ class PDFMinerBackend(ReaderBackend):
         if "URI" in obj_resolved:
             if isinstance(obj_resolved["URI"], PDFObjRef):
                 return self.resolve_PDFObjRef(obj_resolved["URI"])
+            else:
+                return Reference(obj_resolved["URI"].decode("utf-8"), self.curpage)
 
         if "A" in obj_resolved:
             if isinstance(obj_resolved["A"], PDFObjRef):

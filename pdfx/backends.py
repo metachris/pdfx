@@ -302,7 +302,11 @@ class PDFMinerBackend(ReaderBackend):
 
             if "URI" in obj_resolved["A"]:
                 # print("->", a["A"]["URI"])
-                return Reference(obj_resolved["A"]["URI"].decode("utf-8"), self.curpage)
+                try:
+                    reference = Reference(obj_resolved["A"]["URI"].decode("utf-8"), self.curpage)
+                except:
+                    reference = Reference(obj_resolved["A"]["URI"].decode("ISO-8859-1"), self.curpage)
+                return reference
 
 
 class TextBackend(ReaderBackend):

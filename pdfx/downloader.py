@@ -46,7 +46,7 @@ def get_status_code(url):
             "Mozilla/5.0 (compatible; MSIE 9.0; " "Windows NT 6.1; Trident/5.0)",
         )
         request.get_method = lambda: "HEAD"
-        response = urlopen(request, context=ssl_unverified_context)
+        response = urlopen(request, context=ssl_unverified_context, timeout=10)
         # print response.info()
         return response.getcode()
     except HTTPError as e:

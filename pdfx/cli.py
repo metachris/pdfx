@@ -94,6 +94,13 @@ def create_parser():
         action="version",
         version="%(prog)s v{version}".format(version=pdfx.__version__),
     )
+
+    parser.add_argument(
+        "-f",
+        "--fast-timeout",
+        action="store_true",
+        help="Apply 10 second timeout for URLOPEN to prevent hanging processes",
+    )
     return parser
 
 
@@ -201,7 +208,10 @@ def main():
         refs_all = pdf.get_references()
         refs = [ref for ref in refs_all if ref.reftype in ["url", "pdf"]]
         print("\nChecking %s URLs for broken links..." % len(refs))
-        check_refs(refs)
+        if args.fast_timeout:
+            check_refs(refs, timeout=True)
+        else:
+            check_refs(refs)
 
     try:
         if args.download_pdfs:

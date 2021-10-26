@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from .colorprint import colorprint, OKGREEN, FAIL
 from .threadpool import ThreadPool
 from collections import defaultdict
+from itertools import repeat
 import ssl
 import os
 import sys
@@ -37,7 +38,7 @@ def sanitize_url(url):
     return url
 
 
-def get_status_code(url):
+def get_status_code(url, timeout):
     """ Perform HEAD request and return status code """
     try:
         request = Request(sanitize_url(url))
@@ -46,7 +47,10 @@ def get_status_code(url):
             "Mozilla/5.0 (compatible; MSIE 9.0; " "Windows NT 6.1; Trident/5.0)",
         )
         request.get_method = lambda: "HEAD"
-        response = urlopen(request, context=ssl_unverified_context)
+        if timeout:
+            response = urlopen(request, context=ssl_unverified_context, timeout=10)
+        else:
+            response = urlopen(request, context=ssl_unverified_context)
         # print response.info()
         return response.getcode()
     except HTTPError as e:
@@ -58,13 +62,13 @@ def get_status_code(url):
         return None
 
 
-def check_refs(refs, verbose=True, max_threads=MAX_THREADS_DEFAULT):
+def check_refs(refs, verbose=True, max_threads=MAX_THREADS_DEFAULT, timeout=False):
     """ Check if urls exist """
     codes = defaultdict(list)
 
-    def check_url(ref):
+    def check_url(ref, timeout):
         url = ref.ref
-        status_code = str(get_status_code(url))
+        status_code = str(get_status_code(url, timeout))
         codes[status_code].append(ref)
         if verbose:
             if status_code == "200":
@@ -75,7 +79,7 @@ def check_refs(refs, verbose=True, max_threads=MAX_THREADS_DEFAULT):
     # Start a threadpool and add the check-url tasks
     try:
         pool = ThreadPool(5)
-        pool.map(check_url, refs)
+        pool.starmap(check_url, zip(refs, repeat(timeout)))
         pool.wait_completion()
 
     except Exception as e:

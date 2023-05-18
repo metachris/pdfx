@@ -23,6 +23,7 @@ URL_REGEX = r"""(?i)\b((?:https?:(?:/{1,3}|[a-z0-9%])|[a-z0-9.\-]+[.](?:com|net|
 
 
 def extract_urls(text):
+    # Remove line breaks in order to include links spanning over multiple lines
     text = text.replace("\n", "")
     return set(re.findall(URL_REGEX, text, re.IGNORECASE))
 

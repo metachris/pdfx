@@ -176,5 +176,4 @@ Feedback, ideas and pull requests are welcome!
 Possible:
 
 - Timeout (see [#43](https://github.com/metachris/pdfx/issues/43))
-- Cuts off links that span two lines [#40](https://github.com/metachris/pdfx/issues/40)
 - Include Check-Links Results in Output [#39](https://github.com/metachris/pdfx/issues/39)

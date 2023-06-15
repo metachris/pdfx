@@ -94,7 +94,7 @@ class PDFx(object):
     reader = None  # ReaderBackend
     summary = {}
 
-    def __init__(self, uri):
+    def __init__(self, uri, references_data_structure="set"):
         """
         Open PDF handle and parse PDF metadata
         - `uri` can bei either a filename or an url
@@ -125,7 +125,7 @@ class PDFx(object):
 
         # Create ReaderBackend instance
         try:
-            self.reader = PDFMinerBackend(self.stream)
+            self.reader = PDFMinerBackend(self.stream, references_data_structure=references_data_structure)
         except PDFSyntaxError as e:
             raise PDFInvalidError("Invalid PDF (%s)" % unicode(e))
 
@@ -159,13 +159,13 @@ class PDFx(object):
     def get_metadata(self):
         return self.reader.get_metadata()
 
-    def get_references(self, reftype=None, sort=False):
+    def get_references(self, reftype=None):
         """ reftype can be `None` for all, `pdf`, etc. """
-        return self.reader.get_references(reftype=reftype, sort=sort)
+        return self.reader.get_references(reftype=reftype)
 
-    def get_references_as_dict(self, reftype=None, sort=False):
+    def get_references_as_dict(self, reftype=None):
         """ reftype can be `None` for all, `pdf`, etc. """
-        return self.reader.get_references_as_dict(reftype=reftype, sort=sort)
+        return self.reader.get_references_as_dict(reftype=reftype)
 
     def get_references_count(self, reftype=None):
         """ reftype can be `None` for all, `pdf`, etc. """

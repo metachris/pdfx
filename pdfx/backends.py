@@ -124,12 +124,14 @@ class ReaderBackend(object):
 
     text = ""
     metadata = {}
-    references = set()
 
-    def __init__(self):
+    def __init__(self, references_data_structure="set"):
         self.text = ""
         self.metadata = {}
-        self.references = set()
+        if references_data_structure == "list":
+            self.references = list()
+        else:  # default to set
+            self.references = set()
 
     def get_metadata(self):
         return self.metadata
@@ -163,18 +165,18 @@ class ReaderBackend(object):
     def get_text(self):
         return self.text
 
-    def get_references(self, reftype=None, sort=False):
+    def get_references(self, reftype=None):
         refs = self.references
         if reftype:
             refs = set([ref for ref in refs if ref.reftype == "pdf"])
-        return sorted(refs) if sort else refs
+        return refs
 
-    def get_references_as_dict(self, reftype=None, sort=False):
+    def get_references_as_dict(self, reftype=None):
         ret = {}
         refs = self.references
         if reftype:
-            refs = set([ref for ref in refs if ref.reftype == "pdf"])
-        for r in sorted(refs) if sort else refs:
+            refs = [ref for ref in refs if ref.reftype == reftype]
+        for r in refs:
             if r.reftype in ret:
                 ret[r.reftype].append(r.ref)
             else:
@@ -183,8 +185,8 @@ class ReaderBackend(object):
 
 
 class PDFMinerBackend(ReaderBackend):
-    def __init__(self, pdf_stream, password="", pagenos=[], maxpages=0):  # noqa: C901
-        ReaderBackend.__init__(self)
+    def __init__(self, pdf_stream, password="", pagenos=[], maxpages=0, references_data_structure="set"):  # noqa: C901
+        ReaderBackend.__init__(self, references_data_structure)
         self.pdf_stream = pdf_stream
 
         # Extract Metadata
@@ -238,7 +240,10 @@ class PDFMinerBackend(ReaderBackend):
                     if isinstance(refs, list):
                         for ref in refs:
                             if ref:
-                                self.references.add(ref)
+                                if references_data_structure == "list":
+                                    self.references.append(ref)
+                                else:
+                                    self.references.add(ref)
                     elif isinstance(refs, Reference):
                         self.references.add(refs)
 
